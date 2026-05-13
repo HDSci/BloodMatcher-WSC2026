@@ -1,0 +1,84 @@
+---
+MATCHING_RULES:
+  ABOD:
+    antigen_set:
+      - A
+      - B
+      - D
+    compatible: [true, true, true]
+    mismatch: [false, false, false]
+    substitution: [false, false, false]
+  Limited: &mustcategory
+    antigen_set:
+      - A
+      - B
+      - D
+      - C
+      - c
+      - E
+      - e
+      - K
+    compatible: [true, true, true, true, true, true, true, true]
+    mismatch: [false, false, false, false, false, false, false, false]
+    substitution: [false, false, false, true, true, true, true, true]
+  Extended:
+    antigen_set:
+      - A
+      - B
+      - D
+      - C
+      - c
+      - E
+      - e
+      - K
+      - k
+      - Fya
+      - Fyb
+      - Jka
+      - Jkb
+      - M
+      - N
+      - S
+      - s
+    compatible: [true, true, true, true, true, true, true, true, false, false, false, false, false, false, false, false, false]
+    mismatch: [false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true]
+    substitution: [false, false, false, true, true, true, true, true, true, true, true, true, true, true, true, true, true]
+  MUST: *mustcategory
+  SHOULD:
+    antigen_set:
+      - A
+      - B
+      - D
+      - C
+      - c
+      - E
+      - e
+      - K
+      - Fya
+      - Fyb
+      - Jka
+      - Jkb
+      - S
+    compatible: [true, true, true, true, true, true, true, true, false, false, false, false, false]
+    mismatch: [false, false, false, false, false, false, false, false, true, true, true, true, true]
+    substitution: [false, false, false, true, true, true, true, true, true, true, true, true, true]
+  COULD:
+    antigen_set:
+      - A
+      - B
+      - D
+      - C
+      - c
+      - E
+      - e
+      - K
+      - Fya
+      - Fyb
+      - Jka
+      - Jkb
+      - M
+      - S
+      - s
+    compatible: [true, true, true, true, true, true, true, true, false, false, false, false, false, false, false]
+    mismatch: [false, false, false, false, false, false, false, false, true, true, true, true, true, true, true]
+    substitution: [false, false, false, true, true, true, true, true, true, true, true, true, true, true, true]
