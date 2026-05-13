@@ -1,0 +1,253 @@
+---
+Manufacturing_Colindale:
+  UniqueID: 3
+  DemandID: 3
+  SHUs: &Colindale_SHUs
+    - 11
+    - 19
+    - 23
+    - 29
+  SupplyPathwaysOrder:
+    - R0
+    - Standard
+  SupplyPathways:
+    R0:
+      WatchedAntigens: 31744
+      WatchedPhenotype: 21504
+      PathwaysProportionsCumulative:
+        - 0.36
+        - 0.90
+        - 1.00
+      Paths:
+        - Path: 40pcKnown
+          Proportion: 0.36
+          DestinationsIDs:
+            - 11
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 2
+          Destinations:
+            SHU_Colindale:
+              UniqueID: 11
+              PathwayTime: 2
+        - Path: 60pcKnown
+          Proportion: 0.54
+          DestinationsIDs:
+            - 11
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 3
+          Destinations:
+            SHU_Colindale:
+              UniqueID: 11
+              PathwayTime: 3
+        - Path: New
+          Proportion: 0.1
+          DestinationsIDs:
+            - 23
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 4
+          Destinations:
+            SHU_Basildon:
+              UniqueID: 23
+              PathwayTime: 4
+    Standard:
+      WatchedAntigens: 0
+      WatchedPhenotype: 0
+      PathwaysProportionsCumulative:
+        - 1.00
+      Paths:
+        - Path: All
+          Proportion: 1
+          DestinationsIDs: *Colindale_SHUs
+          DestinationProportions:
+            - 0.275158
+            - 0.442917
+            - 0.155385
+            - 0.126540
+          PathwayTimes:
+            - 3
+            - 3
+            - 4
+            - 3              
+          Destinations:
+            SHU_Colindale:
+              UniqueID: 11
+              PathwayTime: 3
+            SHU_Tooting:
+              UniqueID: 19
+              PathwayTime: 3
+            SHU_Basildon:
+              UniqueID: 23
+              PathwayTime: 4
+            SHU_Cambridge:
+              UniqueID: 29
+              PathwayTime: 3
+
+Manufacturing_Filton:
+  UniqueID: 5
+  DemandID: 5
+  SHUs: &Filton_SHUs
+    - 13
+    - 31
+    - 37
+    - 41
+    - 43
+  SupplyPathwaysOrder:
+    - R0
+    - Standard
+  SupplyPathways:
+    R0:
+      WatchedAntigens: 31744
+      WatchedPhenotype: 21504
+      PathwaysProportionsCumulative:
+        - 0.90
+        - 1.00
+      Paths:
+        - Path: Known
+          Proportion: 0.9
+          DestinationsIDs:
+            - 19
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 2
+          Destinations:
+            SHU_Tooting:
+              UniqueID: 19
+              PathwayTime: 2
+        - Path: New
+          Proportion: 0.1
+          DestinationsIDs:
+            - 41
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 3
+          Destinations:
+            SHU_Birmingham:
+              UniqueID: 41
+              PathwayTime: 3
+    Standard:
+      WatchedAntigens: 0
+      WatchedPhenotype: 0
+      PathwaysProportionsCumulative:
+        - 1.00
+      Paths:
+        - Path: All
+          Proportion: 1
+          DestinationsIDs: *Filton_SHUs
+          DestinationProportions:
+            - 0.142223
+            - 0.095009
+            - 0.172549
+            - 0.411377
+            - 0.178841
+          PathwayTimes:
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+          Destinations:
+            SHU_Filton:
+              UniqueID: 13
+              PathwayTime: 3
+            SHU_Plymouth:
+              UniqueID: 31
+              PathwayTime: 3
+            SHU_Southampton:
+              UniqueID: 37
+              PathwayTime: 3
+            SHU_Birmingham:
+              UniqueID: 41
+              PathwayTime: 3
+            SHU_Oxford:
+              UniqueID: 43
+              PathwayTime: 3
+
+Manufacturing_Manchester:
+  UniqueID: 7
+  DemandID: 7
+  SHUs: &Manchester_SHUs
+    - 17
+    - 47
+    - 53
+    - 59
+    - 61
+  SupplyPathwaysOrder:
+    - R0
+    - Standard
+  SupplyPathways:
+    R0:
+      WatchedAntigens: 31744
+      WatchedPhenotype: 21504
+      PathwaysProportionsCumulative:
+        - 0.90
+        - 1.00
+      Paths:
+        - Path: Known
+          Proportion: 0.9
+          DestinationsIDs:
+            - 19
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 3
+          Destinations:
+            SHU_Tooting:
+              UniqueID: 19
+              PathwayTime: 3
+        - Path: New
+          Proportion: 0.1
+          DestinationsIDs:
+            - 47
+          DestinationProportions:
+            - 1
+          PathwayTimes:
+            - 3
+          Destinations:
+            SHU_Barnsley:
+              UniqueID: 47
+              PathwayTime: 3
+    Standard:
+      WatchedAntigens: 0
+      WatchedPhenotype: 0
+      PathwaysProportionsCumulative:
+        - 1.00
+      Paths:
+        - Path: All
+          Proportion: 1
+          DestinationsIDs: *Manchester_SHUs
+          DestinationProportions:
+            - 0.202413
+            - 0.460699
+            - 0.071969
+            - 0.115268
+            - 0.149651
+          PathwayTimes:
+            - 3
+            - 3
+            - 3
+            - 3
+            - 3
+          Destinations:
+            SHU_Manchester:
+              UniqueID: 17
+              PathwayTime: 3
+            SHU_Barnsley:
+              UniqueID: 47
+              PathwayTime: 3
+            SHU_Lancaster:
+              UniqueID: 53
+              PathwayTime: 3
+            SHU_Liverpool:
+              UniqueID: 59
+              PathwayTime: 3
+            SHU_Newcastle:
+              UniqueID: 61
+              PathwayTime: 3

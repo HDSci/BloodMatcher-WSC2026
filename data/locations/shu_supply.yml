@@ -1,0 +1,280 @@
+---
+SHU_Colindale:
+    UniqueID: 11
+    DemandID: 33
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 606.312
+            - 606.312
+            - 606.312
+            - 606.312
+            - 606.312
+            - 0
+            - 0
+        InitialInventory: 3392
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 2598
+
+SHU_Filton:
+    UniqueID: 13
+    DemandID: 65
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 183.554
+            - 183.554
+            - 183.554
+            - 183.554
+            - 183.554
+            - 0
+            - 0
+        InitialInventory: 1027
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 787
+
+SHU_Manchester:
+    UniqueID: 17
+    DemandID: 119
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 335.972
+            - 335.972
+            - 335.972
+            - 335.972
+            - 335.972
+            - 0
+            - 0
+        InitialInventory: 1880
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 1440
+
+SHU_Tooting:
+    UniqueID: 19
+    DemandID: 1995
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 962.458
+            - 962.458
+            - 962.458
+            - 962.458
+            - 962.458
+            - 0
+            - 0
+        InitialInventory: 5384
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 4125
+
+SHU_Basildon:
+    UniqueID: 23
+    DemandID: 69
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 314.944
+            - 314.944
+            - 314.944
+            - 314.944
+            - 314.944
+            - 0
+            - 0
+        InitialInventory: 1762
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 1350
+
+SHU_Cambridge:
+    UniqueID: 29
+    DemandID: 87
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 251.006
+            - 251.006
+            - 251.006
+            - 251.006
+            - 251.006
+            - 0
+            - 0
+        InitialInventory: 1404
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 1076
+
+SHU_Plymouth:
+    UniqueID: 31
+    DemandID: 155
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 122.612
+            - 122.612
+            - 122.612
+            - 122.612
+            - 122.612
+            - 0
+            - 0
+        InitialInventory: 686
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 525
+
+SHU_Southampton:
+    UniqueID: 37
+    DemandID: 185
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 222.684
+            - 222.684
+            - 222.684
+            - 222.684
+            - 222.684
+            - 0
+            - 0
+        InitialInventory: 1246
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 954
+
+SHU_Birmingham:
+    UniqueID: 41
+    DemandID: 205
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 534.996
+            - 534.996
+            - 534.996
+            - 534.996
+            - 534.996
+            - 0
+            - 0
+        InitialInventory: 2993
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 2293
+
+SHU_Oxford:
+    UniqueID: 43
+    DemandID: 215
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 230.804
+            - 230.804
+            - 230.804
+            - 230.804
+            - 230.804
+            - 0
+            - 0
+        InitialInventory: 1291
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 989
+
+SHU_Barnsley:
+    UniqueID: 47
+    DemandID: 329
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 769.93
+            - 769.93
+            - 769.93
+            - 769.93
+            - 769.93
+            - 0
+            - 0
+        InitialInventory: 4307
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 3300
+
+SHU_Lancaster:
+    UniqueID: 53
+    DemandID: 371
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 119.462
+            - 119.462
+            - 119.462
+            - 119.462
+            - 119.462
+            - 0
+            - 0
+        InitialInventory: 668
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 512
+
+SHU_Liverpool:
+    UniqueID: 59
+    DemandID: 413
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 191.324
+            - 191.324
+            - 191.324
+            - 191.324
+            - 191.324
+            - 0
+            - 0
+        InitialInventory: 1070
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 820
+
+SHU_Newcastle:
+    UniqueID: 61
+    DemandID: 427
+    Supply:
+        DonationsbyDayDistributions: Poisson
+        DonationsbyDayDistributionsValues:
+            - 248.388
+            - 248.388
+            - 248.388
+            - 248.388
+            - 248.388
+            - 0
+            - 0
+        InitialInventory: 1390
+        DonorEthnicities:
+            AfricanDonors: 0.01
+            EuropeanDonors: 0.99
+        BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups_donors.json
+        OrderPoint: 1065
