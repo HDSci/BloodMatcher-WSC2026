@@ -1,4 +1,4 @@
-# Blood Supply Chain Simulator & Hierarchical Extended Blood Matching for Sickle Cell Patients (WSC 2026)
+# Blood Supply Chain Simulator & Hierarchical Extended Blood Matching for Sickle Cell Patients
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19543714.svg)](https://doi.org/10.5281/zenodo.19543714)
 
@@ -26,12 +26,9 @@ The repository contains:
    - Experiment structure is in [`experiments`](BSCSimulator/experiments).  
    - Scenario execution/definitions are centered in experiment scripts (for example, files analogous to `allo_incidence.py` in prior repositories).
 
-4. **Policy evaluation and tuning components** for penalty-weight sensitivity and trade-off analysis (clinical risk vs transport burden).  
-   - Bayesian optimisation and/or parameter exploration components are in the experiment/tuning modules where applicable.
-
-5. **Analysis scripts and notebooks** for reproducing figures/tables and summarising simulation outputs.  
-   - Plotting/table helper functions are in `analysis/scripts`.
-   - Notebooks for manuscript analysis are in `analysis/notebooks/`.
+4. **Analysis scripts and notebooks** for reproducing figures/tables and summarising simulation outputs.  
+   - Plotting/table helper functions are in [`analysis/scripts`](analysis/scripts).
+   - Notebooks for manuscript analysis are in [`analysis/notebooks/`](analysis/notebooks).
 
 ---
 
@@ -98,45 +95,94 @@ The 2026 manuscript evaluates policies in the hierarchical NHSBT network with SH
 
 ---
 
-## General Notes & Assumptions
+## Notes, Assumptions, and Data Structures
 
 ### Antigens
 
-Antigens are encoded as bit-fields in integer representations, including major and extended antigens:
+Antigens are encoded as bit-fields in integer representations with each bit indicating presence (1) or absence (0), including major and extended antigens:
 - Major: A, B, D
 - Extended/minor set used in matching policies includes: C, c, E, e, K, k, Fya, Fyb, Jka, Jkb, M, N, S, s
 
 ### Alloantibodies
 
-Alloantibody-related structures are handled as profile/mask-like representations in simulation state and compatibility logic.  
-As in earlier code lineage, ensure mask/profile interpretation is consistent when reading precomputed data and when checking compatibility in matching routines.
+Alloantibody-related structures are handled as profile/mask-like representations in simulation state and compatibility logic.
+They are 14-element boolean arrays (excluding major antigens A, B, D).
+Masks indicate *potential* alloantibodies based on incidence probabilities.
+**Important:** Convert masks to actual alloantibody profiles before use by ensuring patients only have antibodies to antigens they lack.
+
+### Location IDs
+
+Each location has two unique identifiers:
+- **location_ID:** Prime number uniquely identifying the location
+- **location_sink_ID:** Unique identifier for when the location receives units
 
 ### Demand
 
-Requests are represented with structured integer-array records (e.g., request identifier, phenotype, units, due date, group, and location identifiers), with exact schema depending on experiment generation mode.
+Requests are represented with structured integer-array records (e.g., request identifier, phenotype, units, due date, patient group, and location identifiers).
+Columns: `[ID, phenotype, units, due_date, patient_group, location_ID, location_sink_ID]`
+- **ID:** Unique identifier for the request
+- **phenotype:** Patient's antigen profile (bit-field integer)
+- **units:** Number of units requested
+- **due_date:** Simulation day when units are needed
+- **patient_group:** ID of patient group (e.g., SCD, thalassemia, Other)
+- **location_ID:** Unique ID of requesting location
+- **location_sink_ID:** Sink ID for demand location
+
+See: [`BSCSimulator/location/demand.py`](BSCSimulator/location/demand.py)
 
 ### Supply
 
-Donor units are represented with structured integer-array records (e.g., unit identifier, antigen phenotype, collection date, location identifiers), then tracked through inventory, transit, allocation, and expiry pipelines.
+Donor units are represented with structured integer-array records (e.g., unit identifier, phenotype, collection date, location identifiers).
+Columns: `[ID, antigen_vector, date_bled, location_ID, location_sink_ID]`
+- **ID:** Unique identifier for the unit
+- **antigen_vector:** Donor's phenotype (bit-field integer)
+- **date_bled:** Simulation day when unit was collected
+- **location_ID:** Unique ID of supply location
+- **location_sink_ID:** Sink ID for supply location
+
+See: [`BSCSimulator/location/supply.py`](BSCSimulator/location/supply.py)
+
+### Inventory
+Columns: `[ID, antigen_vector, date_bled, location_ID, sink_ID, remaining_transit_time]`
+- Extends supply structure with **remaining_transit_time** for units in transit between locations
+- Units with `remaining_transit_time=0` are available at their location
+- Units with `remaining_transit_time>0` are en-route and unavailable for matching
+
+See: [`BSCSimulator/location/inventory.py`](BSCSimulator/location/inventory.py)
+
+### Matches
+
+**Today's Matches:**
+Columns: `[ID_demand, ID_supply, date, phenotype_demand, phenotype_supply, patient_group, location_ID_demand, location_ID_supply]`
+
+**Future/Reserved Matches:**
+Columns: `[ID_demand, ID_supply, date, phenotype_demand, phenotype_supply, patient_group, location_ID_demand, sink_ID_demand, location_ID_supply, request_due_date, transit_time]`
+
+**Rebalancing Flows:**
+Same structure as future matches — used for inter-SHU inventory transfers
+
+See: [`BSCSimulator/matching.py`](BSCSimulator/matching.py)
+
+### Recorded Moves
+Columns: `[ID, antigen_vector, date_bled, location_ID, demand_ID, transit_time, date_moved, request_due_date, patient_group, new_location_ID]`
+- Tracks all unit movements between locations for analysis
+- Records both demand-driven (i.e., patient-specific) reservations and inventory balancing transfers
+
+See: [`BSCSimulator/location/inventory.py`](BSCSimulator/location/inventory.py)
+
+### Expiries
+Columns: `[ID, antigen_vector, date_bled, location_ID, sink_ID, remaining_transit_time]`
+- Same structure as inventory
+- Records units that expired before being matched
+
+See: [`BSCSimulator/location/inventory.py`](BSCSimulator/location/inventory.py)
 
 ### Locations and Movements
 
 The hierarchical supply chain representation includes:
 - manufacturing-region links,
 - SHU-level stock,
-- transhipments for balancing and patient-specific matching,
-- movement tracking for workload and logistics metrics.
-
----
-
-## WSC 2026 Model Context (Summary)
-
-This repository corresponds to experiments analysing a **three-tier hierarchical blood supply chain** with bilateral SHU transhipments and extended RBC matching for SCD patients.  
-Key trade-off explored:
-
-- stricter focus on compatibility can reduce alloimmunisation risk significantly;
-- unrestricted cross-network transhipments can create major operational burden;
-- introducing a transportation penalty enables practical trade-offs between clinical gains and logistics workload.
+- transhipments for balancing and patient-specific matching.
 
 ---
 
