@@ -1,0 +1,86 @@
+---
+main_func: EXPERIMENT_4
+seed: 0xBEBADBAE
+
+penalty_weights:
+  immunogenicity: 1
+  usability: 0
+  substitutions: 0
+  fifo: 1
+  young_blood: 0
+  transport_cost: 0
+
+penalty_names: null
+
+simulation_time:
+  warm_up: 84
+  horizon: 126
+  cool_down: 0
+
+anticipation:
+  - true
+  - true
+  - false
+
+data_files:
+  supply_data: data/locations/shu_supply.yml
+  demand_data: data/locations/shu_demand.yml
+  ab_datafile: data/antibody_frequencies/bayes_alloAb_frequencies.tsv
+  immunogenicity_data: data/immune_risks/immunogenicity.tsv
+  courier_costs_data: data/locations/courier_costs.tsv
+  manufacturing_pathways_data: data/locations/supply_pathways.yml
+  transit_time_data:
+    - data/locations/shu_nhsbt_travel_times/0_Monday.tsv
+    - data/locations/shu_nhsbt_travel_times/1_Tuesday.tsv
+    - data/locations/shu_nhsbt_travel_times/2_Wednesday.tsv
+    - data/locations/shu_nhsbt_travel_times/3_Thursday.tsv
+    - data/locations/shu_nhsbt_travel_times/4_Friday.tsv
+    - data/locations/shu_nhsbt_travel_times/5_Saturday.tsv
+    - data/locations/shu_nhsbt_travel_times/6_Sunday.tsv
+  mismatch_data: data/immune_risks/mismatch_parameters.tsv
+
+name: exp4-network-no_cost-E02
+replications: 100
+cpus: 25
+
+exp2: null
+exp: null
+
+stock_measurement:
+  inventory_size: 30000
+  watched_antigens: [114688, 114688, 114688, 114688, 114688, 114688, 114688, 114688, 31744, 128, 64, 0]
+  watched_phenotypes: [0, 16384, 32768, 49152, 65536, 81920, 98304, 114688, 21504, 0, 0, 0]
+  watched_phenotypes_names: [O-, O+, B-, B+, A-, A+, AB-, AB+, R0, Fya-, Fyb-, TOTAL]
+
+stock_rebalancing:
+  rebalance_stock: true
+  rebalance_stock_days: [3]
+  rebalance_lead_time: 4
+
+forecasting:
+  units_days: 0
+  requests_days: 3
+  units_shows: 1
+  requests_shows: 1
+
+pre_compute_folder: out/experiments/precompute/exp4/supply_chain/2025-old-dummy-demand/
+
+solver: maxflow
+
+constraints:
+  max_age: 23
+  max_young_blood: 14
+  yb_constraint: false
+  substitution_weight_equal: false
+  unit_moving_window: 1
+  discount_future_demand: variable
+  expert_mismatch_risk: false
+  multi_stage_matching: false
+  multi_stage_matching_strictness: 1.0
+  random_relaxation: false
+  siloed_shus: false
+  mismatch_function_normalisation: true
+  exact_matching_patient_groups:
+    - SCD
+
+computation_times: true

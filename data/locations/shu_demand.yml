@@ -1,0 +1,552 @@
+---
+Demand_Colindale:
+    UniqueID: 67
+    DemandID: 737
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 20.99694903038203  # Monday
+                - 23.93016383836358  # Tuesday
+                - 24.783419717236537  # Wednesday
+                - 24.079069988970218  # Thursday
+                - 14.677891988368595  # Friday
+                - 5.3440762939937825  # Saturday
+                - 4.048829142685251  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues:  &unitsperscdappointmentdistribution
+                1: 0.029341433464745045
+                2: 0.17604860078847026
+                3: 0.07917016738835392
+                4: 0.036256705228462485
+                5: 0.030246235377754803
+                6: 0.09791249272927036
+                7: 0.0712854650035546
+                8: 0.24578297679829383
+                9: 0.05758417889226395
+                10: 0.12434563433076974
+                11: 0.019841013378142574
+                12: 0.03218509661991857
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 24.03292115         # O-
+                32767: 119.9188583         # O+
+                49151: 4.956777732         # B-
+                65535: 25.04270775         # B+
+                81919: 23.41953297         # A-
+                98303: 116.3493117         # A+
+                114687: 2.183622679       # AB-
+                131071: 10.88804855       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues:  &bulkunitscoefficientsbydayvalues
+                - 1.2470570540459238  # Monday
+                - 1.4212674220395067  # Tuesday
+                - 1.4719442494735786  # Wednesday
+                - 1.4301113005113808  # Thursday
+                - 0.8717537350847288  # Friday
+                - 0.31739697182392457  # Saturday
+                - 0.2404692670209566  # Sunday
+    
+Demand_Filton:
+    UniqueID: 71
+    DemandID: 923
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 1.1214784087034995  # Monday
+                - 1.2781457926401285  # Tuesday
+                - 1.3237194635515892  # Wednesday
+                - 1.2860990925498847  # Thursday
+                - 0.7839681339616966  # Friday
+                - 0.2854350967612554  # Saturday
+                - 0.21625401183194629  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 9.224383134         # O-
+                32767: 46.02759221         # O+
+                49151: 1.902524318         # B-
+                65535: 9.611962258         # B+
+                81919: 8.988950767         # A-
+                98303: 44.65751882         # A+
+                114687: 0.8381241753       # AB-
+                131071: 4.179081304       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Manchester:
+    UniqueID: 73
+    DemandID: 1241
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 3.9937002155820713  # Monday
+                - 4.551608919081521  # Tuesday
+                - 4.7139014589391355  # Wednesday
+                - 4.579931439887697  # Thursday
+                - 2.7917913366088443  # Friday
+                - 1.0164638022661185  # Saturday
+                - 0.7701028276346136  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 16.16171081         # O-
+                32767: 80.6432933         # O+
+                49151: 3.333344614         # B-
+                65535: 16.84077429         # B+
+                81919: 15.74921821         # A-
+                98303: 78.24283686         # A+
+                114687: 1.468447304       # AB-
+                131071: 7.322018449       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Tooting:
+    UniqueID: 79
+    DemandID: 1501
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 33.959483578662386  # Monday
+                - 38.703528056753235  # Tuesday
+                - 40.08354421838965  # Wednesday
+                - 38.94436190213577  # Thursday
+                - 23.739336187706808  # Friday
+                - 8.643259117617568  # Saturday
+                - 6.548386938734583  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 37.91603887         # O-
+                32767: 189.1924858         # O+
+                49151: 7.820163682         # B-
+                65535: 39.50914974         # B+
+                81919: 36.94831423         # A-
+                98303: 183.5609162         # A+
+                114687: 3.445037825       # AB-
+                131071: 17.1777567       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Basildon:
+    UniqueID: 83
+    DemandID: 1909
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 10.603726130552491  # Monday
+                - 12.085036889601927  # Tuesday
+                - 12.51594195327384  # Wednesday
+                - 12.16023638824827  # Thursday
+                - 7.412522009425448  # Friday
+                - 2.698826451418831  # Saturday
+                - 2.0447101774791943  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 12.59643495         # O-
+                32767: 62.85337053         # O+
+                49151: 2.598008285         # B-
+                65535: 13.12569692         # B+
+                81919: 12.27493827         # A-
+                98303: 60.98245515         # A+
+                114687: 1.144507605       # AB-
+                131071: 5.706780066       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Cambridge:
+    UniqueID: 89
+    DemandID: 2581
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 1.0153538534041913  # Monday
+                - 1.1571959350245664  # Tuesday
+                - 1.1984570079213879  # Wednesday
+                - 1.1643966208763663  # Thursday
+                - 0.7097818911059861  # Friday
+                - 0.2584246144590394  # Saturday
+                - 0.19579007720846286  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 12.80718819         # O-
+                32767: 63.90498168         # O+
+                49151: 2.641476033         # B-
+                65535: 13.34530534         # B+
+                81919: 12.48031249         # A-
+                98303: 62.00276367         # A+
+                114687: 1.16365657       # AB-
+                131071: 5.802261238       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Plymouth:
+    UniqueID: 97
+    DemandID: 3007
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 0.09253163341020755  # Monday
+                - 0.1054580427153314  # Tuesday
+                - 0.10921826331093955  # Wednesday
+                - 0.10611425849794445  # Thursday
+                - 0.06468412714328688  # Friday
+                - 0.023550855309335206  # Saturday
+                - 0.01784281961295498  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 6.406616367         # O-
+                32767: 31.9675713         # O+
+                49151: 1.321361359         # B-
+                65535: 6.675801929         # B+
+                81919: 6.243101384         # A-
+                98303: 31.01601341         # A+
+                114687: 0.5821028877       # AB-
+                131071: 2.902499852       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Southampton:
+    UniqueID: 101
+    DemandID: 3737
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 1.0657349583876465  # Monday
+                - 1.2146151388749624  # Tuesday
+                - 1.2579235556001205  # Wednesday
+                - 1.222173117417026  # Thursday
+                - 0.7450007420034093  # Friday
+                - 0.271247452120726  # Saturday
+                - 0.20550503559610953  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 11.30108832         # O-
+                32767: 56.38988291         # O+
+                49151: 2.330843704         # B-
+                65535: 11.77592397         # B+
+                81919: 11.01265256         # A-
+                98303: 54.71136196         # A+
+                114687: 1.026812871       # AB-
+                131071: 5.119926855       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Birmingham:
+    UniqueID: 103
+    DemandID: 4223
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 3.9374579424446  # Monday
+                - 4.487509758347539  # Tuesday
+                - 4.647516773287877  # Wednesday
+                - 4.515433420234634  # Thursday
+                - 2.7524752431565225  # Friday
+                - 1.0021491988368594  # Saturday
+                - 0.7592576636919683  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 26.63731537         # O-
+                32767: 132.9141983         # O+
+                49151: 5.493932712         # B-
+                65535: 27.7565303         # B+
+                81919: 25.95745568         # A-
+                98303: 128.9578279         # A+
+                114687: 2.420257014       # AB-
+                131071: 12.06796216       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Oxford:
+    UniqueID: 107
+    DemandID: 4601
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 2.503716447408001  # Monday
+                - 2.8534786032287176  # Tuesday
+                - 2.9552224696681035  # Wednesday
+                - 2.8712344580366986  # Thursday
+                - 1.7502199739296098  # Friday
+                - 0.6372379003308933  # Saturday
+                - 0.4827901473979745  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 11.19228646         # O-
+                32767: 55.84698614         # O+
+                49151: 2.308403375         # B-
+                65535: 11.6625506         # B+
+                81919: 10.90662763         # A-
+                98303: 54.18462525         # A+
+                114687: 1.016927173       # AB-
+                131071: 5.070634471       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Barnsley:
+    UniqueID: 109
+    DemandID: 5123
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 8.909723828336507  # Monday
+                - 10.15438722350346  # Tuesday
+                - 10.51645288478893  # Wednesday
+                - 10.21757319763361  # Thursday
+                - 6.2283317356863535  # Friday
+                - 2.267674404893212  # Saturday
+                - 1.7180567251579264  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 37.12722536         # O-
+                32767: 185.2564842         # O+
+                49151: 7.657471299         # B-
+                65535: 38.68719281         # B+
+                81919: 36.17963348         # A-
+                98303: 179.742075         # A+
+                114687: 3.37336651       # AB-
+                131071: 16.82038692       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Lancaster:
+    UniqueID: 113
+    DemandID: 5989
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 0.043272879775393555  # Monday
+                - 0.049317979544770886  # Tuesday
+                - 0.05107646545673318  # Wednesday
+                - 0.04962486212774491  # Thursday
+                - 0.03024985460744009  # Friday
+                - 0.011013674922290185  # Saturday
+                - 0.008344283565627195  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 6.258927912         # O-
+                32767: 31.23063921         # O+
+                49151: 1.29090069         # B-
+                65535: 6.521908077         # B+
+                81919: 6.099182356         # A-
+                98303: 30.3010171         # A+
+                114687: 0.5686839671       # AB-
+                131071: 2.835590005       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Liverpool:
+    UniqueID: 127
+    DemandID: 7493
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 1.103520787125238  # Monday
+                - 1.2576795417627595  # Tuesday
+                - 1.3025234663591698  # Wednesday
+                - 1.2655054898225209  # Thursday
+                - 0.7714148801764765  # Friday
+                - 0.2808645803669909  # Saturday
+                - 0.21279125438684451  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 9.639442093         # O-
+                32767: 48.09864284         # O+
+                49151: 1.988130016         # B-
+                65535: 10.04446067         # B+
+                81919: 9.393416247         # A-
+                98303: 46.66692184         # A+
+                114687: 0.8758362849       # AB-
+                131071: 4.367122619       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    
+Demand_Newcastle:
+    UniqueID: 131
+    DemandID: 7991
+    PatientGroups:
+        SCD:
+            ID: 3
+            Type: Appointments
+            AppointmentsbyDayDistributions: Poisson
+            AppointmentsbyDayDistributionsValues: 
+                - 1.4846214228416723  # Monday
+                - 1.6920188659380326  # Tuesday
+                - 1.7523496289982952  # Wednesday
+                - 1.7025475032587984  # Thursday
+                - 1.0378228216183696  # Friday
+                - 0.37786109495638215  # Saturday
+                - 0.2862786623884488  # Sunday
+            UnitsperAppointmentDistribution: custom
+            UnitsperAppointmentDistributionValues: *unitsperscdappointmentdistribution
+            BloodGroupDistribution: data/bloodgroup_frequencies/blood_groups.yml
+            PatientEthnicities:
+                AfricanPatients: 1.0
+                # EuropeanPatients: 0.0
+        Other:
+            ID: 5
+            Type: Bulk
+            BulkOrders: 8
+            BulkUnitsDistributions: Poisson
+            BulkUnitsDistributionsValues:
+                16383: 12.495491         # O-
+                32767: 62.34968298         # O+
+                49151: 2.577188647         # B-
+                65535: 13.02051163         # B+
+                81919: 12.1765707         # A-
+                98303: 60.49376053         # A+
+                114687: 1.135335874       # AB-
+                131071: 5.661047688       # AB+
+            BulkUnitsDistributionsCoefficientsbyDayValues: *bulkunitscoefficientsbydayvalues
+    

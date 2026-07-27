@@ -1,0 +1,145 @@
+---
+# Parameters for Testing Precomputation
+# =====================================
+# This file contains parameters for testing the precomputation of forecasts in the Blood Supply Chain Simulator.
+# Main function to run
+main_func: EXPERIMENT_4  # Options: EXPERIMENT_4 | BAYES_OPT | PRECOMPUTE | MULTI_OBJECTIVE_BAYES_OPT
+
+# Random seed
+seed: 0xBEBADBAE
+
+# Penalty weights for optimization
+penalty_weights:
+  immunogenicity: 1
+  usability: 0
+  substitutions: 0
+  fifo: 1
+  young_blood: 0
+  transport_cost: 0
+
+penalty_names: null
+
+# Simulation timing parameters (in days)
+simulation_time:
+  warm_up: 126    # 7 * 6 * 3
+  horizon: 168    # 7 * 6 * 4
+  cool_down: 0
+
+# Anticipation settings for usability
+anticipation:
+  - true
+  - false
+  - false
+
+# Data file paths
+data_files:
+  supply_data: data/locations/shu_supply.yml
+  demand_data: data/locations/shu_demand.yml
+  ab_datafile: data/antibody_frequencies/bayes_alloAb_frequencies.tsv
+  immunogenicity_data: data/immune_risks/immunogenicity.tsv
+  courier_costs_data: data/locations/courier_costs.tsv
+  manufacturing_pathways_data: data/locations/supply_pathways.yml
+  transit_time_data:
+    - data/locations/shu_nhsbt_travel_times/0_Monday.tsv
+    - data/locations/shu_nhsbt_travel_times/1_Tuesday.tsv
+    - data/locations/shu_nhsbt_travel_times/2_Wednesday.tsv
+    - data/locations/shu_nhsbt_travel_times/3_Thursday.tsv
+    - data/locations/shu_nhsbt_travel_times/4_Friday.tsv
+    - data/locations/shu_nhsbt_travel_times/5_Saturday.tsv
+    - data/locations/shu_nhsbt_travel_times/6_Sunday.tsv
+  mismatch_data: data/immune_risks/mismatch_parameters.tsv
+
+# Name of the experiment (used for output files)
+name: Precompute-Testing
+
+# Simulation parameters
+replications: 1
+cpus: 1
+
+# Experiment configurations
+exp2: null
+exp: null
+
+# Stock measurement settings
+stock_measurement:
+  inventory_size: 30000
+  watched_antigens:
+    - 114688
+    - 114688
+    - 114688
+    - 114688
+    - 114688
+    - 114688
+    - 114688
+    - 114688
+    - 31744
+    - 128
+    - 64
+    - 0
+  watched_phenotypes:
+    - 0
+    - 16384
+    - 32768
+    - 49152
+    - 65536
+    - 81920
+    - 98304
+    - 114688
+    - 21504
+    - 0
+    - 0
+    - 0
+  watched_phenotypes_names:
+    - O-
+    - O+
+    - B-
+    - B+
+    - A-
+    - A+
+    - AB-
+    - AB+
+    - R0
+    - Fya-
+    - Fyb-
+    - TOTAL
+
+# Stock rebalancing settings
+stock_rebalancing:
+  rebalance_stock: true
+  rebalance_stock_days:  # Days of the week to rebalance stock (0=Monday, 6=Sunday)
+    - 3
+  rebalance_lead_time: 4  # Number of days to allow for rebalanced stock to arrive
+
+# Forecasting settings
+forecasting:
+  units_days: 1
+  requests_days: 3
+  units_shows: 1
+  requests_shows: 1
+
+# Precompute folder path
+pre_compute_folder: out/experiments/precompute/exp4/supply_chain/2025-old-dummy-demand/
+
+
+# Solver type
+solver: maxflow  # Options: pot | ortools | maxflow | ortools-maxflow
+
+# Constraint settings
+constraints:
+  max_age: 23
+  max_young_blood: 14
+  yb_constraint: false
+  substitution_weight_equal: false
+  unit_moving_window: 1
+  discount_future_demand: null  # null or flat or variable
+  expert_mismatch_risk: false
+  multi_stage_matching: false  # null or e.g., [True, True, False]
+  multi_stage_matching_strictness: 1.0  # null or e.g., [0.7, 0.7, 0.7]
+  random_relaxation: false
+  siloed_shus: false
+  mismatch_function_normalisation: true
+  exact_matching_patient_groups:
+    - SCD
+
+# Computation timing flag
+computation_times: true
