@@ -1,10 +1,13 @@
+"""
+This module contains functions for loading data and running simulation experiments.
+These simulations are either one-off experiments or one of many iterations of a tuning process.
+"""
 import datetime
 import logging
 import os
 import time
 
 import numpy as np
-import pandas as pd
 
 from BSCSimulator.antigen import Antigens
 from BSCSimulator.bloodgroups import ANTIGENS
@@ -25,6 +28,19 @@ def precompute_exp4(anticipation=False, seed=0xBE_BAD_BAE, cpus=1, replications=
     :param int cpus: The number of CPUs to parallelise precomputation 'replications'.
     :param int replications: The number of simulation replications precomputation is required for.
     :param str folder: The folder to save the pre-computed data.
+    :param \*\*kwargs: Additional keyword arguments.
+    :keyword int warm_up: The warm-up period for the simulation, defaults to 4 weeks (7 * 6 * 4).
+    :keyword int horizon: The simulation horizon, defaults to 5 weeks (7 * 6 * 5).
+    :keyword int cool_down: The cool-down period for the simulation, defaults to 0 days.
+    :keyword str ab_datafile: The path to the alloantibodies data file.
+    :keyword str supply_data: The path to the supply data file.
+    :keyword str demand_data: The path to the demand data file.
+    :keyword str manufacturing_pathways_data: The path to the manufacturing pathways data file.
+    :keyword str immunogenicity_data: The path to the immunogenicity data file.
+    :keyword str courier_costs_data: The path to the courier costs data file.
+    :keyword str transit_time_data: The path to the transit time data file.
+    :keyword str mismatch_data: The path to the mismatch parameters data file.
+    :return: None
     """
     start_time = time.time()
     start_datetime = datetime.datetime.now().strftime('%Y%m%d-%H-%M')
@@ -93,12 +109,37 @@ def tuning(seed=0xBE_BAD_BAE, replications=10, cpus=10, weights: np.ndarray = No
     :param int seed: The seed to use, defaults to 0xBE_BAD_BAE
     :param int cpus: The number of CPUs to use, defaults to 10
     :param int replications: The number of simulation replications to run, defaults to 10
-    :param np.ndarray weights: The penalty weights for the cost function, defaults to None
-    :param int num_objectives: The number of objectives to return, defaults to 1
+    :param np.ndarray weights: The penalty weights for the total penalty/cost function components, defaults to None
+    :param int num_objectives: The number of objectives being optimisedto return, defaults to 1
     :param bool anticipation: Whether to use anticipation, defaults to True
     :param str name: The name for the output files, defaults to 'TuningSim'
-    :param kwargs: Additional keyword arguments for the simulation, such as data file paths and simulation parameters.
-    :return:
+    :param dict \*\*kwargs: Additional keyword arguments for the simulation, such as data file paths and simulation parameters.
+    :return: None
+    
+    Keyword arguments
+    -----------------
+    warm_up: int, optional
+        The warm-up period for the simulation, defaults to 4 weeks (7 * 6 * 4).
+    horizon: int, optional
+        The simulation horizon, defaults to 5 weeks (7 * 6 * 5).
+    cool_down: int, optional
+        The cool-down period for the simulation, defaults to 0 days.
+    ab_datafile: str, optional
+        The path to the alloantibodies data file.
+    supply_data: str, optional
+        The path to the supply data file.
+    demand_data: str, optional
+        The path to the demand data file.
+    manufacturing_pathways_data: str, optional
+        The path to the manufacturing pathways data file.
+    immunogenicity_data: str, optional
+        The path to the immunogenicity data file.
+    courier_costs_data: str, optional
+        The path to the courier costs data file.
+    transit_time_data: str, optional
+        The path to the transit time data file.
+    mismatch_data: str, optional
+        The path to the mismatch parameters data file.
     """
     start_datetime = datetime.datetime.now().strftime('%Y%m%d-%H-%M')
     root_now = datetime.datetime.now()
@@ -113,7 +154,6 @@ def tuning(seed=0xBE_BAD_BAE, replications=10, cpus=10, weights: np.ndarray = No
     allo_ab_data = bsc_data.load_alloantibodies(kwargs.get('ab_datafile'))
     bsc_data.load_supply(kwargs.get('supply_data'))
     bsc_data.load_demand(kwargs.get('demand_data'))
-    # bsc_data.load_routing(kwargs.get('routing_data'))
     bsc_data.load_manufacturing_pathways(kwargs.get('manufacturing_pathways_data'))
     immuno = bsc_data.load_immunogenicity(kwargs.get('immunogenicity_data'))
     bsc_data.load_transportation_data(kwargs.get('courier_costs_data'), kwargs.get('transit_time_data'))
@@ -131,10 +171,8 @@ def tuning(seed=0xBE_BAD_BAE, replications=10, cpus=10, weights: np.ndarray = No
     rebalance_lead_time = kwargs.get('rebalance_lead_time', 1)
 
     if isinstance(anticipation, bool):
-        # _anticipation = [anticipation and rule == 'Extended'] * 3
         _anticipation = [anticipation] * 3
     else:
-        # _anticipation = [antn and rule == 'Extended' for antn in anticipation]
         _anticipation = anticipation
 
     antigens = Antigens(ANTIGENS,
@@ -163,7 +201,6 @@ def tuning(seed=0xBE_BAD_BAE, replications=10, cpus=10, weights: np.ndarray = No
             mismatching_parameters=bsc_data.mismatch_parameters,
             exact_matching_patient_groups=kwargs.get('exact_matching_patient_groups', []),
             mismatch_normalisation=kwargs.get('mismatch_function_normalisation', True),)
-    # TODO: Make sure `watched_phenotypes` starts with O- and O+
     def inventory():
         return LocationInventory(
             kwargs.get('max_age', 35),
@@ -201,12 +238,12 @@ def exp4(anticipation=False, seed=0xBE_BAD_BAE, cpus=1, replications=60, weights
     """Experiment 4 - Simulation with locations for supply and demand.
 
     :param bool anticipation: Whether to use anticipation.
-    :param int seed: The seed for the random number generator(s).
+    :param int seed: The seed for the random number generator(s), defaults to 0xBE_BAD_BAE.
     :param int cpus: The number of CPUs to parallelise simulation replications.
-    :param dict weights: The penalty weights for the cost function.
+    :param dict weights: The penalty weights for the cost/penalty function components.
     :param int replications: The number of simulation replications to run.
     :param str name: The name for the output files, defaults to 'Simulation'.
-    :param kwargs: Additional keyword arguments.
+    :param \*\*kwargs: Additional keyword arguments.
     :return: None
     """
     start_time = time.time()
@@ -220,7 +257,6 @@ def exp4(anticipation=False, seed=0xBE_BAD_BAE, cpus=1, replications=60, weights
     allo_ab_data = bsc_data.load_alloantibodies(kwargs.get('ab_datafile'))
     bsc_data.load_supply(kwargs.get('supply_data'))
     bsc_data.load_demand(kwargs.get('demand_data'))
-    # bsc_data.load_routing(kwargs.get('routing_data'))
     bsc_data.load_manufacturing_pathways(kwargs.get('manufacturing_pathways_data'))
     immuno = bsc_data.load_immunogenicity(kwargs.get('immunogenicity_data'))
     bsc_data.load_transportation_data(kwargs.get('courier_costs_data'), kwargs.get('transit_time_data'))
@@ -273,7 +309,6 @@ def exp4(anticipation=False, seed=0xBE_BAD_BAE, cpus=1, replications=60, weights
             mismatching_parameters=bsc_data.mismatch_parameters,
             exact_matching_patient_groups=kwargs.get('exact_matching_patient_groups', []),
             mismatch_normalisation=kwargs.get('mismatch_function_normalisation', True),)
-    # TODO: Make sure `watched_phenotypes` starts with O- and O+
     def inventory():
         return LocationInventory(
             kwargs.get('max_age', 35),
