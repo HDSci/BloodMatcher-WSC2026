@@ -1,6 +1,7 @@
 """Tests for YAML parameter loading."""
 import os
 import tempfile
+
 import numpy as np
 import yaml
 
@@ -9,26 +10,27 @@ def test_yaml_parameter_loading():
     """Test that YAML parameters can be loaded correctly."""
     # Import the module to test default loading
     from BSCSimulator.experiments import parameters as param
-    
+
     # Check that default parameters are loaded
     assert param.main_func == 'EXPERIMENT_4'
     assert param.seed == 0xBEBADBAE
     assert param.replications == 1
     assert param.cpus == 1
     assert param.solver == 'maxflow'
-    
+
     # Check dictionary parameters
     assert isinstance(param.penalty_weights, dict)
     assert param.penalty_weights['immunogenicity'] == 1
     assert param.penalty_weights['fifo'] == 1
-    
+
     # Check simulation time
     assert param.simulation_time['warm_up'] == 126
     assert param.simulation_time['horizon'] == 168
-    
+
     # Check numpy arrays are created correctly
     assert isinstance(param.stock_measurement['watched_antigens'], np.ndarray)
-    assert isinstance(param.stock_measurement['watched_phenotypes'], np.ndarray)
+    assert isinstance(
+        param.stock_measurement['watched_phenotypes'], np.ndarray)
     assert len(param.stock_measurement['watched_antigens']) == 12
     assert len(param.stock_measurement['watched_phenotypes']) == 12
 
@@ -42,20 +44,20 @@ def test_yaml_file_structure():
         'experiments',
         'default_parameters.yml'
     )
-    
+
     with open(yaml_path, 'r') as f:
         params = yaml.safe_load(f)
-    
+
     # Check required top-level keys
     required_keys = [
         'main_func', 'seed', 'penalty_weights', 'simulation_time',
         'data_files', 'name', 'replications', 'cpus', 'stock_measurement',
         'stock_rebalancing', 'forecasting', 'bayes_opt', 'solver', 'constraints'
     ]
-    
+
     for key in required_keys:
         assert key in params, f"Missing required key: {key}"
-    
+
     # Validate data types
     assert isinstance(params['main_func'], str)
     assert isinstance(params['seed'], int)
@@ -82,18 +84,18 @@ def test_custom_yaml_loading():
         },
         'name': 'Test Experiment',
     }
-    
+
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
         yaml.dump(custom_params, f)
         temp_path = f.name
-    
+
     try:
         # Import the load function
         from BSCSimulator.experiments.parameters import _load_yaml_parameters
-        
+
         # Load the custom parameters
         loaded_params = _load_yaml_parameters(temp_path)
-        
+
         # Verify loaded values
         assert loaded_params['main_func'] == 'PRECOMPUTE'
         assert loaded_params['seed'] == 99999
@@ -104,6 +106,3 @@ def test_custom_yaml_loading():
     finally:
         # Clean up
         os.unlink(temp_path)
-
-
-

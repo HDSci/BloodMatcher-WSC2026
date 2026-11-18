@@ -18,8 +18,8 @@ def test_siloed_future_demand_supply_constraint():
     penalty = siloed_future_demand_supply_constraint(num_today_requests, num_future_requests,
                                                      stepwise_results, penalty_value)
     expected = np.zeros((5, 8))
-    expected[2:3, :] = [0, 0, penalty_value, penalty_value, 0, 0, 0, penalty_value]
+    expected[2:3, :] = [0, 0, penalty_value, penalty_value,
+                        0, 0, 0, penalty_value]
     assert penalty.shape == expected.shape
     assert np.array_equal(penalty, expected)
     assert np.all((penalty == 0) | (penalty == penalty_value))
-    
