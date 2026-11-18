@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -723,3 +723,70 @@ def plot_scenario_comparison(
     
     plt.show()
     return max_diff # Return it so you can use it for the next plot
+
+
+def custom_representer():
+
+    class PandasSafeDumper(yaml.SafeDumper):
+        pass
+
+    def represent_numpy_int(dumper, data):
+        return dumper.represent_int(int(data))
+    
+    def represent_numpy_float(dumper, data):
+        return dumper.represent_float(float(data))
+
+    def represent_numpy_array(dumper, data):
+        return dumper.represent_list(data.tolist())
+    
+    def represent_pandas_timestamp(dumper, data):
+        # Converts pd.Timestamp to native Python datetime (natively supported in YAML)
+        return dumper.represent_datetime(data.to_pydatetime())
+    
+    def represent_pandas_timedelta(dumper, data):
+        return dumper.represent_str(str(data))
+
+    def represent_datetime_time(dumper, data):
+        # Serializes datetime.time objects as strings in "HH:MM:SS" format
+        return dumper.represent_str(data.isoformat())
+
+    PandasSafeDumper.add_multi_representer(np.integer, represent_numpy_int)
+    PandasSafeDumper.add_multi_representer(np.floating, represent_numpy_float)
+    PandasSafeDumper.add_representer(np.ndarray, represent_numpy_array)
+    PandasSafeDumper.add_representer(pd.Timestamp, represent_pandas_timestamp)
+    PandasSafeDumper.add_representer(pd.Timedelta, represent_pandas_timedelta)
+    PandasSafeDumper.add_representer(time, represent_datetime_time)
+
+    return PandasSafeDumper
+
+
+def save_graph_to_yaml(logistics_graph: nx.DiGraph, file_path: str):
+    """
+    Save the logistics graph to a YAML file.
+
+    :param logistics_graph: The time-expanded logistics graph to be saved.
+    :param file_path: The path to the output YAML file.
+    """
+    if not file_path.endswith('.yaml') and not file_path.endswith('.yml'):
+        file_path += '.yml'  # Default to .yml if not specified
+    
+    with open(file_path, 'w') as f:
+        data = nx.node_link_data(logistics_graph)
+        yaml.dump(data, f, sort_keys=False, Dumper=custom_representer())
+
+
+def load_graph_from_yaml(file_path: str) -> nx.DiGraph:
+    """
+    Load a logistics graph from a YAML file.
+
+    :param file_path: The path to the input YAML file.
+    :return: The loaded time-expanded logistics graph.
+    """
+    with open(file_path, 'r') as f:
+        data = yaml.safe_load(f)
+    graph = nx.node_link_graph(data)
+
+    for _, attrs in graph.nodes(data=True):
+        if isinstance(attrs.get('Event Time'), str):
+            attrs['Event Time'] = time.fromisoformat(attrs['Event Time'])
+    return graph
