@@ -31,8 +31,9 @@ class ManufacturingValidationRouting:
         self.loc_map: dict = None
         self.phen_map: dict = None
         self.location_id_to_sink_id: np.ndarray = None
-        self.b_type_to_phenotype_name = {'R0': 'R0', 'Standard': 'TOTAL'}  # TODO: Remove hardcoding, must be a better way to do this
-        self.pending_units = np.empty((0, SUPPLY_COLUMNS + 1), dtype=int)  # Columns: ID, phenotype, units, due date, location ID, location sink ID, date available
+        self.b_type_to_phenotype_name = {'R0': 'R0', 'Standard': 'TOTAL'}
+        # Columns: ID, phenotype, units, due date, location ID, location sink ID, date available
+        self.pending_units = np.empty((0, SUPPLY_COLUMNS + 1), dtype=int)
         self.current_date = 0
         
     def tick(self):
@@ -46,7 +47,6 @@ class ManufacturingValidationRouting:
         
     def _select_units_in_region(self, donated_units: np.ndarray,) -> tuple[np.ndarray, np.ndarray]:
         """Select units in the region."""
-        # shu_ids = list(self.stock_holding_units.keys())
         shu_ids = self.stock_holding_units
         selected_units_idx = np.isin(donated_units[:, 3], shu_ids)
         return donated_units[selected_units_idx], donated_units[~selected_units_idx]

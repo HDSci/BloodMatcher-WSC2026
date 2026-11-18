@@ -12,6 +12,7 @@ SUPPLY_COLUMNS = 5
 REBALANCE_POINT = 6
 """Number of days of stock to trigger rebalance"""
 
+
 class LocationSupply:
     """Location supply class."""
 
@@ -52,7 +53,6 @@ class LocationSupply:
         d_ids = np.full(num_donations, self.demand_id, dtype=int)[:, None]
         donations = np.hstack((ids, phenos, dates, u_ids, d_ids))
         id_ticker.increment(num_donations)
-        # id_ticker += num_donations
         all_donations = np.vstack((all_donations, donations))
         return all_donations
     
@@ -81,7 +81,6 @@ class LocationSupply:
         """Setup donor data by converting datframes to numpy arrays."""
         self._donor_data = self.donor_data
         donor_data = {}
-        # for grp, df in self._donor_data.items():
         choices = self.donor_data.iloc[:, 0].to_numpy(copy=True)
         probabilities = self.donor_data.iloc[:, 1].to_numpy(copy=True)
         probabilities /= probabilities.sum()

@@ -19,17 +19,18 @@ MOVES_COLUMNS = INVENTORY_COLUMNS + 4
 
 MAJOR_BLOOD_TYPES = ['O-', 'O+', 'B-', 'B+', 'A-', 'A+', 'AB-', 'AB+']
 
+
 class LocationInventory:
 
-    def __init__(
-            self, shelf_life: int = DEFAULT_SHELF_LIFE, inventory_size: int = 30_000,
-            watched_antigens: np.ndarray = None,
-            watched_phenotypes: np.ndarray = None, watched_phenotype_names: np.ndarray = None,) -> None:
+    def __init__(self, shelf_life: int = DEFAULT_SHELF_LIFE, inventory_size: int = 30_000,
+                watched_antigens: np.ndarray = None,
+                watched_phenotypes: np.ndarray = None, watched_phenotype_names: np.ndarray = None,) -> None:
         """Initialise the inventory.
         
         Inventory of blood units.
         
         :param int shelf_life: The shelf life of the units in the inventory, in days.
+        :param int inventory_size: The nominal size of the inventory, in units.
         :param ndarray watched_antigens: 1-D integer array of
         masks selecting the antigens in phenotype combinations to watch
         :param ndarray watched_phenotypes: 1-D integer array of
@@ -38,7 +39,6 @@ class LocationInventory:
         names of the watched phenotype combinations
         """
         self.shelf_life = shelf_life
-        # Columns: ID, antigen vector, date bled, location id, demand id
         self.store = np.empty(shape=(0, INVENTORY_COLUMNS), dtype=int)
         """Columns: 0: ID, 1: antigen vector, 2: date bled, 3: location id, 4: sink id, 5: remaining time in transit"""
         self.expired = np.empty(shape=(0, INVENTORY_COLUMNS), dtype=int)
@@ -58,7 +58,6 @@ class LocationInventory:
         self._contains_phenotype_combo_at_location = None
         self.pheno_age_dist = [ [] for _ in range(len(self.watched_phenotypes))]
         self.pheno_age_dist_loc = None
-        # Columns: ID, antigen vector, date bled, old location id, demand id, date moved, new location id
         self.recorded_moves = np.empty(shape=(0, MOVES_COLUMNS), dtype=int)
         """Columns-> 0: ID, 1: antigen vector, 2: date bled, 3: location id, 4: demand id, 5: transit time,
         6: date moved, 7: request due date, 8: patient_group, 9: new location id"""
@@ -182,7 +181,6 @@ class LocationInventory:
         self.expired = np.vstack((self.expired, expired))
         self.store = self.units_younger_than(self.shelf_life)
 
-    #TODO: Add functionality to determine or save the inventory thresholds for each location
     def initialise_inventory(self, locations: Locations):
         """Initialise the inventory with units from the supply.
         
@@ -195,7 +193,6 @@ class LocationInventory:
             loc_idx = self.loc_map[loc_id]
             thresholds = locations.locations[loc_id].major_types_rebalance_point
             self.supply_locations_thresholds[loc_idx, :len(thresholds)] = thresholds
-            # TODO: Hacky, fix this
             self.supply_locations_thresholds[loc_idx, -1] = np.sum(thresholds)
         self.deficit = np.zeros((len(locations.supply_locations_ids), len(self.watched_phenotypes)), dtype=int)
         
@@ -228,8 +225,6 @@ class LocationInventory:
         # Vectorized mapping: find indices of units_id_in_order_of_store in units_ids  
         sorter = np.argsort(units_ids)  
         positions_of_ids = sorter[np.searchsorted(units_ids, units_id_in_order_of_store, sorter=sorter)] 
-        # id_to_index = {uid: idx for idx, uid in enumerate(units_ids)}
-        # positions_of_ids = np.array([id_to_index[uid] for uid in units_id_in_order_of_store])
         reordered_location_ids = location_ids[positions_of_ids]
         reordered_location_sink_ids = location_sink_ids[positions_of_ids]
         self.store[i, 3] = reordered_location_ids
@@ -284,9 +279,8 @@ class LocationInventory:
         
         loc, major_type = np.where(need_rebalance)
         ids = np.arange(-1, -need_rebalance.size-1, -1)[need_rebalance.flatten()]
-        phenotypes = (major_type << 14) + (2 ** 14 - 1)  # TODO: Fix this hacky way of getting phenotypes. Use the antigen vector length to determine how many bits to shift
+        phenotypes = (major_type << 14) + (2 ** 14 - 1)
         units = amounts_to_request[need_rebalance]
-        # TODO: I think that maybe the rebalance request need to have a due date a few days in the future. So rebalance request made on Thursday for arrival on Monday...?
         dates = np.full(units.size, self.current_date + rebalance_lead_time, dtype=int)  # Date + 1 incidentally avoids using expiring units
         patient_group = np.full(units.size, locations.rebalance_group_id, dtype=int)
         location_ids = np.array(locations.supply_locations_ids)[loc]
@@ -384,7 +378,6 @@ class LocationInventory:
             for loc, loc_age_dist in zip(self.pheno_age_dist_loc, pheno_age_dist_loc):
                 for combo, age_dist in zip(loc, loc_age_dist):
                     combo.append(age_dist)
-                # combo.append(age_dist)
         self._contains_phenotype_combo = None
         self._contains_phenotype_combo_at_location = None
     
