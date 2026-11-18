@@ -14,11 +14,48 @@ DEMAND_COLUMNS = 7
 
 
 class LocationDemand:
-    """Location demand class."""
+    """
+    A class to represent the demand for a location.
+    
+    Attributes:
+    ----------
+    name : str
+        The name of the location.
+    id : int
+        The unique ID of the location.
+    demand_id : int
+        The sink ID of the location.
+    patient_groups : dict
+        A dictionary containing patient group demand data for the location.
+    pat_group_names : list
+        A list of patient group names for the location.
+    patient_data : dict
+        A dictionary containing phenotype frequencies for each patient group.
+    alloab_data : dict
+        A dictionary containing alloantibody frequencies for each patient group.
+    rng : np.random.Generator
+        A random number generator for generating demand.
+    current_date : int
+        The current date in the simulation.
+    
+    Methods:
+    -------
+    tick():
+        Increment the current date by one.
+    demand(id_ticker, rng=None):
+        Generate demand for the location based on patient group data and random sampling.
+    """
 
     def __init__(self, location_name: str, location_data: dict, patient_data: dict,
                  rng: int | np.random.Generator):
-        """Initialize location demand."""
+        """
+        Initialize location demand.
+        
+        :param location_name: The name of the location.
+        :param location_data: A dictionary containing patient group demand data for the location.
+        :param patient_data: A dictionary containing phenotype frequencies for each patient group.
+        :param rng: A random number generator or an integer seed for generating demand.
+        """
         self.name = location_name
         self.id: int = location_data['UniqueID']
         self.demand_id: int = location_data['DemandID']
@@ -33,11 +70,16 @@ class LocationDemand:
         """Tick the date forward."""
         self.current_date += 1
     
-    # TODO: Add feature to read/use predetermined deterministic demand    
     def demand(self, id_ticker: UniqueIDTicker, rng: np.random.Generator = None):
-        """Get demand for location."""
+        """
+        Generate demand for the location for a set of patient groups with unique IDs and associated phenotypes.
+        
+        :param UniqueIDTicker id_ticker: A UniqueIDTicker instance for generating unique IDs for patients.
+        :param np.random.Generator rng: A random number generator for generating demand. If None, the instance's rng is used.
+        :return: A tuple containing an array of all patients and an array of alloantibody masks for each patient.
+        :rtype: tuple[np.ndarray, np.ndarray]
+        """
         rng = self.rng if rng is None else rng
-        # init_tick = id_ticker + 0
         # Columns: ID, phenotype, units, due date, patient group, location ID, demand ID
         all_patients = np.empty((0, DEMAND_COLUMNS), dtype=int)
         all_abs_masks = np.empty((0, self._num_allotypes), dtype=bool)
@@ -49,7 +91,6 @@ class LocationDemand:
                              self.current_date, data['ID'],
                              self.id, self.demand_id] for _ in range(
                                 self._generate_num_apps(data['Appointments'], rng))]
-                # id_ticker += len(patients)
                 # Generate patients' antibodies
                 alloabs_mask = self._allo_antibodies(len(patients), grp, rng)
             elif data['Type'] == 'Bulk':
@@ -58,25 +99,26 @@ class LocationDemand:
                              self.current_date, data['ID'],
                              self.id, self.demand_id] for _, (bg_type, units) in enumerate(
                                 self._bulk_units(data['BulkUnits'], rng))]
-                # id_ticker += len(patients)
                 # Generate antibodies for bulk requests
                 alloabs_mask = self._allo_antibodies(len(patients), grp, rng)
             if len(patients) == 0:
                 continue
             all_patients = np.vstack((all_patients, patients))
             all_abs_masks = np.vstack((all_abs_masks, alloabs_mask))
-        # assert init_tick + len(all_patients) == id_ticker + 0
         return all_patients, all_abs_masks
 
     def _appointment_demand(self, rng=None, units: int = None, patient_group: str = None):
-        """Get demand for location."""
+        """Generate appointment demand for location for a given patient group.
+
+        Returns the phenotype and number of units required for the appointment.
+        """
         rng = self.rng if rng is None else rng
         choices = self.patient_data[patient_group]['choices']
         probabilities = self.patient_data[patient_group]['probabilities']
         return np.array(rng.choice(choices, p=probabilities)), self._generate_num_units(units, rng)
 
     def _bulk_units(self, units: list[dict[int, rv_discrete_frozen | rv_sample]] | dict[int, int], rng: np.random.Generator = None) -> ItemsView[int, int] | Generator[tuple[int, int], None, None]:
-        """Get bulk units for location."""
+        """Generate bulk unit demand for location."""
         rng = self.rng if rng is None else rng
         if isinstance(units, dict):
             return units.items()
@@ -135,7 +177,6 @@ class LocationDemand:
     def _setup_patient_data(self):
         """Setup patient data and alloantibodies by converting it to numpy arrays."""
         self._patient_data = self.patient_data
-        # self._allo_ab_data = self.patient_data['alloantibodies']
         patient_data = {}
         allo_ab_data = {}
         for grp, val in self._patient_data.items():

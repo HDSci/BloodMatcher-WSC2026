@@ -1,8 +1,6 @@
-from unittest.mock import Mock
-
 import numpy as np
 
-from BSCSimulator.metrics import IntermediateMetrics, siloed_future_demand_supply_constraint, transit_constraint
+from BSCSimulator.metrics import transit_constraint
 
 
 def test_transit_constraint_basic():

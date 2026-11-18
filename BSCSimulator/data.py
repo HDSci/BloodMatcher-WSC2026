@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class DataIO:
-    
+
     def __init__(self, output_root: str, tuning=False) -> None:
         self.output_root_folder = output_root
         self.is_tuning = tuning
@@ -49,30 +49,32 @@ class DataIO:
         for name, d in a.items():
             id = d.get('UniqueID')
             supply_data: dict = d.get('Supply')
-            black_pop_ratio = supply_data.get('DonorEthnicities').get('AfricanDonors')
+            black_pop_ratio = supply_data.get(
+                'DonorEthnicities').get('AfricanDonors')
             config_file = supply_data.get('BloodGroupDistribution')
             donor_data = population_phenotype(config_file, black_pop_ratio)
             self.donor_data.update({id: donor_data})
             self._supply_names.update({id: name})
-            donations_by_day_dist = supply_data.get('DonationsbyDayDistributions')
+            donations_by_day_dist = supply_data.get(
+                'DonationsbyDayDistributions')
             donations_dist = supply_data.get('DonationsDistribution')
             if donations_by_day_dist is not None:
                 distributions = [
                     create_distribution_object(donations_by_day_dist, {'name': str(name) + '_DonationsbyDay',
-                                                                        'mean': val_or_dict,
-                                                                        'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
-                                                                        'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.],}
-                    ) for val_or_dict in supply_data.get('DonationsbyDayDistributionsValues', ) 
+                                                                       'mean': val_or_dict,
+                                                                       'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
+                                                                       'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.], }
+                                               ) for val_or_dict in supply_data.get('DonationsbyDayDistributionsValues', )
                 ]
                 supply_data.update({'Donations': distributions})
             elif donations_dist is not None:
                 dist_params = {'name': str(name) + '_Donations',
-                            'mean': supply_data.get('DonationsDistributionValue'),
-                            'support': list(supply_data.get('DonationsDistributionValues', {}).keys()),
-                            'probabilities': list(supply_data.get('DonationsDistributionValues', {}).values()),}
+                               'mean': supply_data.get('DonationsDistributionValue'),
+                               'support': list(supply_data.get('DonationsDistributionValues', {}).keys()),
+                               'probabilities': list(supply_data.get('DonationsDistributionValues', {}).values()), }
                 distribution = create_distribution_object(donations_dist, dist_params)
                 supply_data.update({'Donations': distribution})
-    
+
     def load_demand(self, filename: str = 'data/locations/demand.yml') -> None:
         """Loads demand data
 
@@ -104,10 +106,10 @@ class DataIO:
                     if appointments_by_day_dist is not None:
                         distributions = [
                             create_distribution_object(appointments_by_day_dist, {'name': str(name) + '_AppointmentsbyDay',
-                                                                                    'mean': val_or_dict,
-                                                                                    'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
-                                                                                    'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.],}
-                            ) for val_or_dict in data.get('AppointmentsbyDayDistributionsValues', ) 
+                                                                                  'mean': val_or_dict,
+                                                                                  'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
+                                                                                  'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.], }
+                                                       ) for val_or_dict in data.get('AppointmentsbyDayDistributionsValues', )
                         ]
                         data.update({'Appointments': distributions})
                     elif appointments_dist is not None:
@@ -117,7 +119,8 @@ class DataIO:
                                        'probabilities': list(data.get('AppointmentsDistributionValues', {}).values()), }
                         distribution = create_distribution_object(appointments_dist, dist_params)
                         data.update({'Appointments': distribution})
-                    patient_grp_ab_data = self.ab_data.copy().loc[[grp],:] if grp in self.ab_data.index else self.ab_data.copy().loc[['default'], :]
+                    patient_grp_ab_data = self.ab_data.copy().loc[[
+                        grp], :] if grp in self.ab_data.index else self.ab_data.copy().loc[['default'], :]
                 elif data['Type'] == 'Bulk':
                     patient_grp_data = data.get('BulkUnits')
                     bulk_units_dist = data.get('BulkUnitsDistributions')
@@ -126,18 +129,19 @@ class DataIO:
                         coefficients_by_day = data.get('BulkUnitsDistributionsCoefficientsbyDayValues', [1.])
                         distributions = [
                             {bg: create_distribution_object(bulk_units_dist, {'name': str(name) + '_BulkUnits',
-                                                                           'mean': val_or_dict * day_coefficient if type(val_or_dict) is not dict else 0,
-                                                                           'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
-                                                                           'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.],
-                                                                       }) for bg, val_or_dict in data.get('BulkUnitsDistributionsValues',).items()
+                                                                              'mean': val_or_dict * day_coefficient if type(val_or_dict) is not dict else 0,
+                                                                              'support': list(val_or_dict.keys()) if type(val_or_dict) is dict else [int(val_or_dict)],
+                                                                              'probabilities': list(val_or_dict.values()) if type(val_or_dict) is dict else [1.],
+                                                                              }) for bg, val_or_dict in data.get('BulkUnitsDistributionsValues',).items()
                              } for day_coefficient in coefficients_by_day
                         ]
-                        data.update({'BulkUnits': distributions})                    
-                    patient_grp_ab_data = self.ab_data.copy().loc[[grp],:] if grp in self.ab_data.index else self.ab_data.copy().loc[['default'], :]
+                        data.update({'BulkUnits': distributions})
+                    patient_grp_ab_data = self.ab_data.copy().loc[[
+                        grp], :] if grp in self.ab_data.index else self.ab_data.copy().loc[['default'], :]
                     patient_grp_ab_data.loc[:, :] = 0
                 patient_data.update({grp: {'phenotypes': patient_grp_data, 'alloantibodies': patient_grp_ab_data}})
             self.patient_data.update({id: patient_data})
-            
+
     def load_manufacturing_pathways(self, filename: str = 'data/locations/supply_pathways.yml') -> dict:
         """Loads manufacturing and routing pathways data
 
@@ -160,7 +164,7 @@ class DataIO:
 
     def load_mismatch_parameters(self, filename='data/immune_risks/mismatch_weights.tsv') -> pd.DataFrame:
         """Loads mismatch weights data
-        
+
         :param str filename: Filepath to TSV file, defaults to 'data/immune_risks/mismatch_weights.tsv'
         :return: Mismatch weights data as a pandas DataFrame
         """
@@ -179,7 +183,7 @@ class DataIO:
         df = pd.read_csv(filename, sep='\t', index_col=0,)
         self.ab_data = df
         return self.ab_data.loc[['default'], :].copy()
-    
+
     def load_transportation_data(self, courier_costs: str, transit_times: list[str]) -> None:
         """Loads transportation data
 
@@ -212,13 +216,15 @@ class DataIO:
         if self.is_tuning:
             os.makedirs(folder, exist_ok=True)
         ANTIGENS = antigens
-        
+
         pad = [0, 0, 0]
         allo_padded = np.hstack(([pad, pad], np.vstack(manager.allo['total'])))
         mismatch_total = np.vstack(manager.mismatches['total'])
         subs_total = np.vstack(manager.subs['total'])
-        scd_short_padded = np.full((2, len(ANTIGENS)), np.array(manager.scd_shorts)[:, None])
-        all_short_padded = np.full((2, len(ANTIGENS)), np.array(manager.all_shorts)[:, None])
+        scd_short_padded = np.full(
+            (2, len(ANTIGENS)), np.array(manager.scd_shorts)[:, None])
+        all_short_padded = np.full(
+            (2, len(ANTIGENS)), np.array(manager.all_shorts)[:, None])
         allo_group_indices = []
         allo_group_stacked = []
         # Loop over each patient group except 'total'
@@ -235,7 +241,7 @@ class DataIO:
             allo_group_indices.extend(index_grp)
             allo_group_stacked.extend(to_stack)
         index = ['mismatch_avg', 'mismatch_stderr', 'allo_avg', 'allo_stderr', 'subs_avg', 'subs_stderr',
-                'short_avg', 'short_stderr', 'all_short_avg', 'all_short_stderr']
+                 'short_avg', 'short_stderr', 'all_short_avg', 'all_short_stderr']
         index.extend(allo_group_indices)
         stacked = np.vstack((mismatch_total, allo_padded, subs_total, scd_short_padded, all_short_padded,
                              *allo_group_stacked))
@@ -246,23 +252,24 @@ class DataIO:
 
         df.to_csv(file, sep='\t')
         print(f'Output written to {file}')
-        
+
         obj_cols = ['alloimmunisations', 'scd_shortages', 'expiries', 'all_shortages', 'moves',
-                    'scd_moves', 'other_moves',] 
+                    'scd_moves', 'other_moves',]
         obj_stock_cols = ['O_neg_level', 'O_pos_level', 'O_level']
         obj_mm_cols = ['D_subs_num_patients', 'ABO_subs_num_patients', 'ABOD_subs_num_patients']
         all_of_the_cols = obj_cols + obj_stock_cols + obj_mm_cols
 
         if len(all_of_the_cols) != manager.objs.shape[1]:
-            warnings.warn(f'Number of objective columns {len(all_of_the_cols)} does not match number of objectives {manager.objs.shape[1]}.'+
+            warnings.warn(f'Number of objective columns {len(all_of_the_cols)} does not match number of objectives {manager.objs.shape[1]}.' +
                           ' This may lead to mislabelling of objectives.',
                           RuntimeWarning)
             if len(all_of_the_cols) < manager.objs.shape[1]:
-                extra_cols = [f'objective_{i}' for i in range(len(all_of_the_cols), manager.objs.shape[1])]
+                extra_cols = [f'objective_{i}' for i in range(
+                    len(all_of_the_cols), manager.objs.shape[1])]
                 obj_cols.extend(extra_cols)
             else:
                 obj_cols = obj_cols[:len(obj_cols) - (len(all_of_the_cols) - manager.objs.shape[1])]
-                
+
         if self.is_tuning:
             df_obj = pd.DataFrame(manager.objs, columns=obj_cols+obj_stock_cols+obj_mm_cols)
             file5 = os.path.join(folder, sim_name + now.strftime('%d_%H-%M_objectives.tsv'))
@@ -274,18 +281,16 @@ class DataIO:
         else:
             stocks = np.hstack(manager.stocks)
             stock_cols = watched_phenotypes_names + ['total']
-            # stock_cols = kwargs.get('watched_phenotypes_names', ['O-']) + ['total']
             full_stock_cols = stock_cols + ['_se_' + a for a in stock_cols]
             df2 = pd.DataFrame(stocks, columns=full_stock_cols)
 
             file2 = os.path.join(folder, sim_name + now.strftime('%H-%M_stocks.tsv'))
 
             df2.to_csv(file2, sep='\t')
-            
-            # location_ids = manager.simulations[0].locations.supply_locations_ids
+
             location_ids = manager.supply_location_ids
             location_names = [self._supply_names[loc_id] for loc_id in location_ids]
-            
+
             stocks_locs_array_dict = dict(stock_loc_means=manager.stocks_loc[0],
                                           stock_loc_stderrs=manager.stocks_loc[1],
                                           avail_stock_loc_means=manager.avail_stocks[0],
@@ -300,11 +305,11 @@ class DataIO:
             df3 = pd.DataFrame(manager.abo_cm, columns=cols)
             file3 = os.path.join(folder, sim_name + now.strftime('%H-%M_abocm.tsv'))
             df3.to_csv(file3, sep='\t')
-            
+
             df3_1 = pd.DataFrame(manager.abod_mm, columns=cols)
             file3_1 = os.path.join(folder, sim_name + now.strftime('%H-%M_abodmm_subs.tsv'))
             df3_1.to_csv(file3_1, sep='\t')
-            
+
             df3_2_cols = ['D_substitutions', 'ABO_substitutions', 'ABOD_substitutions']
             df3_2 = pd.DataFrame(manager.pats_subs, columns=df3_2_cols)
             file3_2 = os.path.join(folder, sim_name + now.strftime('%H-%M_abodmm_pats_subs.tsv'))
@@ -314,7 +319,7 @@ class DataIO:
 
             with open(file4, 'w+') as f4:
                 json.dump(manager.failures, f4, indent=2)
-                
+
             objectives = manager.objs
             df_obj = pd.DataFrame(objectives, columns=obj_cols+obj_stock_cols+obj_mm_cols)
             file5 = os.path.join(folder, sim_name + now.strftime('%H-%M_objectives.tsv'))
@@ -322,7 +327,8 @@ class DataIO:
 
             file6 = os.path.join(folder, sim_name + now.strftime('%H-%M_age_distributions.npz'))
             age_distributions = dict(total_age_dist=manager.ages[0], total_age_dist_stderr=manager.ages[1],
-                                     location_age_dists=manager.locs_ages[0], location_age_dists_stderr=manager.locs_ages[1],
+                                     location_age_dists=manager.locs_ages[0],
+                                     location_age_dists_stderr=manager.locs_ages[1],
                                      locations=location_names,
                                      watched_phenotypes_names=watched_phenotypes_names,
                                      location_pheno_age_dists=manager.loc_phen_ages[0],
@@ -332,15 +338,14 @@ class DataIO:
                 age_distributions.update({name: manager.phen_ages[0][i], name + '_stderr': manager.phen_ages[1][i]})
             age_distributions.update(
                 {'age_dist_given_to_scd': manager.scd_ages[0],
-                'age_dist_given_to_scd_stderr': manager.scd_ages[1]})
+                 'age_dist_given_to_scd_stderr': manager.scd_ages[1]})
             np.savez_compressed(file6, **age_distributions)
-            
+
             record_computation_times = computation_times
-            # record_computation_times = kwargs.get('computation_times', False)
             if record_computation_times:
                 file7 = os.path.join(folder, sim_name + now.strftime('%H-%M_computation_times.tsv'))
                 np.savetxt(file7, manager.computation_times, delimiter='\t')
-            # Moves    
+            # Moves
             file9 = os.path.join(folder, sim_name + now.strftime('%H-%M_moves.npz'))
             np.savez_compressed(file9, **manager.moves)
             # Immediately unmet requests
@@ -356,10 +361,10 @@ class DataIO:
             file13 = os.path.join(folder, sim_name + now.strftime('%H-%M_steady_state_xA.npz'))
             np.savez_compressed(file13, mean=manager.steady_state_xA[0], stderr=manager.steady_state_xA[1])
 
-    
+
 def population_phenotype(config_file, black_pop_ratio) -> pd.DataFrame:
     """Create a population phenotype table.
-    
+
     This function reads the blood group distribution from a JSON file
     and returns a pandas DataFrame with the population phenotype table.
     Each phenotype is in decimal form and has a frequency associated with it
@@ -381,11 +386,11 @@ def population_phenotype(config_file, black_pop_ratio) -> pd.DataFrame:
     df = pd.DataFrame(antints, columns=['phenotype_decimal']).astype(int)
     df['frequencies'] = freq_pop
     return df
-    
-    
+
+
 def dummy_population_phenotypes(config_file):
     """Create a dummy population phenotype table.
-    
+
     :param config_file: Path to the TSV file containing the major blood group distribution in the population.
     :return: A pandas dataframe containing the population phenotype table.
     """
@@ -396,7 +401,7 @@ def dummy_population_phenotypes(config_file):
 
 def create_distribution_object(dist_type: str, params: dict,) -> rv_discrete_frozen:
     """Create a scipy distribution object.
-    
+
     :param str dist_type: The type of distribution to create.
     :param dict params: The parameters of the distribution.
     :return: A scipy distribution object.
@@ -415,4 +420,3 @@ def create_distribution_object(dist_type: str, params: dict,) -> rv_discrete_fro
     else:
         raise ValueError(f'Unknown distribution type: {dist_type}')
     return frozen_dist
-    

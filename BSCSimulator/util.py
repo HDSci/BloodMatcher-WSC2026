@@ -4,27 +4,10 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 
-from BSCSimulator.bloodgroups import bloodgroup_frequency
-
-
-def population_phenotype(config_file, black_pop_ratio):
-    pop_ratio = np.array([[1 - black_pop_ratio], [black_pop_ratio]])
-    with open(config_file) as json_file:
-        antigen_info = json.load(json_file)
-
-    phen, freq_pop, antigens = bloodgroup_frequency(antigen_info, pop_ratio)
-
-    pows = np.arange(len(antigens) - 1, -1, -1)
-    ints = 2 ** pows
-    antints = phen.dot(ints[:, None])
-    df = pd.DataFrame(antints, columns=['phenotype_decimal']).astype(int)
-    df['frequencies'] = freq_pop
-    return df
-
 
 def dummy_population_phenotypes(config_file):
     """Create a dummy population phenotype table.
-    
+
     :param config_file: Path to the TSV file containing the major blood group distribution in the population.
     :return: A pandas dataframe containing the population phenotype table.
     """
@@ -32,38 +15,6 @@ def dummy_population_phenotypes(config_file):
     df = df.drop(columns=['ABOD'])
     return df
 
-
-def pad_abd_phenotypes(df, padding_length):
-    df.phenotype_decimal *= 2 ** padding_length
-    df.phenotype_decimal += 2 ** padding_length - 1
-    return df
-
-
-def abd_usability(non_scd_freqs: ndarray, scd_requsts_ratio=330/3_500, black_pop_ratio_in_scd=1.0) -> ndarray:
-    """Calculate the usability of ABD blood groups.
-    
-    :param non_scd_freqs: A numpy array containing the frequencies of ABD blood groups in the non-SCD population.
-    :param scd_requsts_ratio: The ratio of SCD units requested to the total number of units requested.
-    :param float black_pop_ratio_in_scd: The ratio of black population in SCD patients.
-    :return: A numpy array containing the usability of ABD blood groups.
-    """
-    scd_phens = population_phenotype('data/bloodgroup_frequencies/usability_blood_groups.json', black_pop_ratio_in_scd)
-    scd_freqs = scd_phens.frequencies.to_numpy().flatten()
-    # non_scd_freqs = np.array([])
-    all_freqs = (1 - scd_requsts_ratio) * non_scd_freqs + scd_requsts_ratio * scd_freqs
-    all_freqs = all_freqs / all_freqs.sum()
-    compatibility = [[True] * 8,                       # O-
-                     [False, True] * 4,                # O+
-                     [False, False, True, True] * 2,   # B-
-                     [False, False, False, True] * 2,  # B+
-                     [False] * 4 + [True] * 4,         # A-
-                     [False] * 4 + [False, True] * 2,  # A+
-                     [False] * 6 + [True] * 2,         # AB-
-                     [False] * 6 + [False, True]       # AB+
-                    ]
-    usability = [all_freqs[compatibility[i]].sum() for i in range(8)]
-    return np.array(usability)
-                        
 
 def list_of_permutations(domain_list) -> list:
     prototype = []
@@ -116,7 +67,8 @@ def _normalize(Y, normalization_type='stats'):
             # A range of [-1, 1] is more natural for a zero-mean GP
             Y_norm = 2 * (Y_norm - 0.5)
     else:
-        raise ValueError('Unknown normalization type: {}'.format(normalization_type))
+        raise ValueError(
+            'Unknown normalization type: {}'.format(normalization_type))
 
     return Y_norm
 
@@ -218,25 +170,6 @@ def normalize(
     return y_norm
 
 
-def is_prime(num):
-    if num < 2:
-        return False
-    for i in range(2, int(num**0.5) + 1):
-        if num % i == 0:
-            return False
-    return True
-
-
-def generate_prime_numbers(n):
-    prime_numbers = []
-    num = 2
-    while len(prime_numbers) < n:
-        if is_prime(num):
-            prime_numbers.append(num)
-        num += 1
-    return prime_numbers
-
-
 class UniqueIDTicker:
     def __init__(self, start: int = 0):
         self._id = start
@@ -244,23 +177,23 @@ class UniqueIDTicker:
 
     def get(self):
         return self._id
-    
+
     def tick(self, get: bool = False):
         self._id += 1
         if get:
             return self._id
-        
+
     def increment(self, value: int):
         self._id += value
-        
+
     def __add__(self, other: int):
         return self._id + other
-    
+
     def __radd__(self, other: int):
         return self._id + other
-    
+
     def __sub__(self, other: int):
         return self._id - other
-    
+
     def __rsub__(self, other: int):
         return self._id - other

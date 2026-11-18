@@ -7,6 +7,7 @@ from .demand import DEMAND_COLUMNS, LocationDemand
 from .supply import SUPPLY_COLUMNS, LocationSupply
 from .manufacturing import ManufacturingValidationRouting
 
+
 SUPPLY = 'supply'
 DEMAND = 'demand'
 MANUFACTURING_ROUTING = 'manufacturing_routing'
@@ -90,7 +91,6 @@ class Locations:
         self.locations.update({id: manufacturing_routing})
         self.manufacturing_locations_ids.append(location_data['UniqueID'])
 
-    # TODO: Loop through locations to calculate the usability across the system.
     def _abod_usability(self):
         """Calculate and return the usability of ABD blood groups across the population.
         
@@ -161,10 +161,8 @@ class Locations:
         """Setup mappings for location IDs."""
         # Demand point to primary supply point
         if len(self.supply_locations_ids) == 1:
-            # FIXME: Hacky solution to handle single supply location
             self.demand_to_primary_supply_map = np.full(max(self.demand_locations_ids) + 1, self.supply_locations_ids[0], dtype=int)
         else:
-            # TODO: This would address the FIXME above - include the primary supply location in demand config file (and vice versa?)
             supply_points = {loc.name[4:]: loc.id for loc in self.locations.values() if self.locations_desc[loc.name] == SUPPLY and loc.name.startswith('SHU_')}
             demand_to_primary_supply = {loc.id: supply_points[loc.name[7:]] for loc in self.locations.values() if self.locations_desc[loc.name] == DEMAND and loc.name.startswith('Demand_')}
             demand_to_primary_supply_map = np.zeros(int(max(demand_to_primary_supply.keys())) + 1, dtype=int)

@@ -37,11 +37,12 @@ def sum_of_substitutions(supply, demand, weights=None):
     supply = np.atleast_2d(supply)
     demand_3d = demand[:, :, None]
     demand_rotated = np.swapaxes(demand_3d, 1, 2)
-    substitutions = ne.evaluate('sum((demand_rotated > supply) * weights, axis=2)') / substitution_norm
+    substitutions = ne.evaluate(
+        'sum((demand_rotated > supply) * weights, axis=2)') / substitution_norm
     return substitutions
 
 
-def mismatching(supply, demand, risk, normalise = True):
+def mismatching(supply, demand, risk, normalise=True):
     assert len(demand.shape) == 2
     if normalise:
         risk_norm = risk.sum()
@@ -51,7 +52,8 @@ def mismatching(supply, demand, risk, normalise = True):
     supply = np.atleast_2d(supply)
     demand_3d = demand[:, :, None]
     demand_rotated = np.swapaxes(demand_3d, 1, 2)
-    immunogenicity = ne.evaluate('sum((demand_rotated < supply) * risk, axis=2)') / risk_norm
+    immunogenicity = ne.evaluate(
+        'sum((demand_rotated < supply) * risk, axis=2)') / risk_norm
     return immunogenicity
 
 
@@ -67,9 +69,6 @@ def major_antigen_substitution(supply, demand, population=False, pop_frequencies
     return mas
 
 
-# TODO: Make calculation of age constraints separate from the core FIFO penalty
-# I.e., calculating and constraining forecasted units so that they cannot be used
-# earlier than they are produced should be done in a separate function.
 def fifo_discount(remaining_shelf_life, max_life=35, reqs_dates=None, scd_pat=False):
     if reqs_dates is None:
         discount = _fifo_discount(remaining_shelf_life)
@@ -143,7 +142,8 @@ def _fifo_discount(remaining_shelf_life: np.ndarray, decay_period:int=3,):
     """
     max_abs = np.max(np.abs([np.max(remaining_shelf_life), np.min(remaining_shelf_life)]))
     poss_shelf_lifes = np.hstack((np.arange(max_abs + 1), np.arange(-max_abs, 0)))
-    shelf_life_lookups = 0.5 ** (poss_shelf_lifes / decay_period)  # Changed to 3 because faster decay than 5 days for shorter 23/24 day shelf life(s)
+    # Changed to 3 because faster decay than 5 days for shorter 23/24 day shelf life(s)
+    shelf_life_lookups = 0.5 ** (poss_shelf_lifes / decay_period)
     discount = shelf_life_lookups[remaining_shelf_life]
     return discount
 
@@ -176,11 +176,9 @@ def can_supply_go_to_demand(supply_ids: np.ndarray, demand_ids: np.ndarray, pena
     return penalty
 
 
-# TODO: Need to maybe somehow check that JIT dispatching of units does not lead to a situation
-# where sending a unit on day t, would mean it arrives too early, but sending it on day t+1 would mean it arrives after the request date 
 def transit_constraint(transit_time_data: np.ndarray, supply_ids: np.ndarray, demand_ids: np.ndarray,
-                       unit_available_dates: np.ndarray, reqs_dates: np.ndarray, penalty_value = 1e16,
-                       stepwise_results: IntermediateMetrics=None) -> np.ndarray:
+                       unit_available_dates: np.ndarray, reqs_dates: np.ndarray, penalty_value=1e16,
+                       stepwise_results: IntermediateMetrics = None) -> np.ndarray:
     """Check if units at the supply points can be used to satisfy demand at the demand points,
     taking into account the transit time between supply and demand points.
     
@@ -214,7 +212,8 @@ def transit_constraint(transit_time_data: np.ndarray, supply_ids: np.ndarray, de
     if stepwise_results is not None and isinstance(stepwise_results, IntermediateMetrics):
         stepwise_results.transit_times = transit_times
         stepwise_results.units_arriving_exactly_on_time = arrival_dates == reqs_dates
-        stepwise_results.units_arriving_exactly_on_time_with_buffer = can_arrive_on_time & (arrival_dates >= reqs_dates - stepwise_results.early_arrival_buffer)
+        stepwise_results.units_arriving_exactly_on_time_with_buffer = can_arrive_on_time & (
+            arrival_dates >= reqs_dates - stepwise_results.early_arrival_buffer)
     return penalty
 
 
@@ -235,7 +234,7 @@ def siloed_future_demand_supply_constraint(num_today_requests, num_future_reques
 
 
 def can_unit_be_used_to_rebalance(supply_ids: np.ndarray, allowed_sources: list[np.ndarray],
-                                  penalty_value = 1e16) -> np.ndarray:
+                                  penalty_value=1e16) -> np.ndarray:
     """Check if units at the supply points can be used to rebalance the inventory.
     
     The check is done by comparing the ID of the location where each unit is with the
@@ -253,7 +252,8 @@ def can_unit_be_used_to_rebalance(supply_ids: np.ndarray, allowed_sources: list[
     return penalties
 
 
-def restrict_r0_units_from_rebalancing(supply_phenotypes: np.ndarray, watched_antigens: int = 31744, watched_phenotype: int = 21504, penalty_value = 1e16):
+def restrict_r0_units_from_rebalancing(supply_phenotypes: np.ndarray, watched_antigens: int = 31744,
+                                       watched_phenotype: int = 21504, penalty_value=1e16):
     """Restrict R0 units from being used to rebalance stock.
     
     The check is done by comparing the phenotype of the unit with the watched antigens and watched phenotype.
@@ -269,7 +269,6 @@ def restrict_r0_units_from_rebalancing(supply_phenotypes: np.ndarray, watched_an
     r0_units = (supply_phenotypes & watched_antigens) == watched_phenotype
     penalties[r0_units] = penalty_value
     return penalties[None, :]
-    
 
 
 def discount_future_demand(penalties: np.ndarray, demand_dates: np.ndarray, discount_strategy: str = 'flat',
@@ -299,7 +298,8 @@ def discount_future_demand(penalties: np.ndarray, demand_dates: np.ndarray, disc
         future_demand_indices = demand_dates > 0
         future_pens = penalties[future_demand_indices]
         dates_in_future = demand_dates[future_demand_indices][:, None]
-        penalties[future_demand_indices] = ne.evaluate('(future_pens * (rate ** dates_in_future)) + init_step + (step * (dates_in_future - 1))')
+        penalties[future_demand_indices] = ne.evaluate(
+            '(future_pens * (rate ** dates_in_future)) + init_step + (step * (dates_in_future - 1))')
     else:
         raise ValueError(f'Invalid discount strategy: {discount_strategy}.')
     return penalties

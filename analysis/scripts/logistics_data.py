@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -258,167 +258,6 @@ def connect_logistics_graph(G: nx.DiGraph, timetable_df: pd.DataFrame,) -> nx.Di
     return G
 
 
-def plot_time_expanded_logistics_graph(
-    all_nodes_list: list[str],
-    logistics_graph: nx.DiGraph,
-    manual_order_locations: list[str],
-    day_order: list[str],
-    event_colors: dict = None,
-    figsize=(20, 10),
-    dpi=400
-):
-    """
-    Plots a time-expanded logistics graph with manual location order and event type coloring.
-
-    Assumes node names are strings of the form "Location-Event Type-Day-Event Time".
-    This function plots the nodes in the graph with their respective colors based on the event type.
-
-    Parameters
-    ----------
-    all_nodes_list : list
-        List of node names (str) in the graph.
-    logistics_graph : networkx.Graph or DiGraph
-        The logistics graph object.
-    manual_order_locations : list
-        List of locations in the desired y-axis order.
-    day_order : list
-        List of days in the desired order.
-    event_colors : dict, optional
-        Mapping of event types to colors.
-    figsize : tuple, optional
-        Figure size.
-    dpi : int, optional
-        Figure DPI.
-    """
-    if event_colors is None:
-        event_colors = {'Blood Matching': 'orange',
-                        'Arrival': 'green', 'Departure': 'blue'}
-
-    location_to_y_manual = {loc: i for i,
-                            loc in enumerate(manual_order_locations)}
-    node_pos_manual = {}
-    for node in all_nodes_list:
-        parts = node.split('-')
-        loc = parts[0]
-        n_type = parts[1]
-        day = parts[2]
-        time_str = parts[3]
-        day_idx = day_order.index(day)
-        dt = datetime(1900, 1, 1 + day_idx,
-                      int(time_str[:2]), int(time_str[3:5]), int(time_str[6:]))
-        node_pos_manual[node] = (mdates.date2num(
-            dt), location_to_y_manual[loc], event_colors[n_type])
-
-    plt.figure(figsize=figsize, dpi=dpi)
-
-    # Draw nodes
-    for node, (x, y, c) in node_pos_manual.items():
-        plt.scatter(x, y, color=c, s=65)
-
-    # Draw edges
-    for u, v in logistics_graph.edges:
-        if 'Sunday' in u and 'Monday' in v:
-            continue
-        x1, y1, _ = node_pos_manual[u]
-        x2, y2, _ = node_pos_manual[v]
-        plt.plot([x1, x2], [y1, y2], color='gray', alpha=0.3)
-
-    plt.yticks(range(len(manual_order_locations)), manual_order_locations)
-    plt.xlabel("Time (Day + HH:MM)")
-    plt.title("Time-Expanded Logistics Graph")
-
-    locator = mdates.AutoDateLocator()
-    formatter = mdates.DateFormatter('%a %H:%M')
-    plt.gca().xaxis.set_major_locator(locator)
-    plt.gca().xaxis.set_major_formatter(formatter)
-
-    # Add legend for event types
-    legend_patches = [
-        plt.Line2D([0], [0], marker='o', color='w', label='Blood Matching',
-                   markerfacecolor=event_colors['Blood Matching'], markersize=15),
-        plt.Line2D([0], [0], marker='o', color='w', label='Departure',
-                   markerfacecolor=event_colors['Departure'], markersize=15),
-        plt.Line2D([0], [0], marker='o', color='w', label='Arrival',
-                   markerfacecolor=event_colors['Arrival'], markersize=15)
-    ]
-    plt.legend(handles=legend_patches, loc='upper center',
-               bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False)
-    plt.tight_layout()
-    plt.show()
-
-
-def save_logistics_graph(logistics_graph: nx.DiGraph, file_path: str):
-    """
-    Save the logistics graph to a file in either GraphML format or JSON/YAML format.
-
-    Parameters
-    ----------
-    logistics_graph : networkx.Graph or DiGraph
-        The logistics graph to be saved.
-    file_path : str
-        The path to the output file (should end with .graphml, .json, .yaml, or .yml).
-    """
-    if not file_path.endswith(('.graphml', '.json', '.yaml', '.yml')):
-        raise ValueError("File path must end with .graphml, .json, .yaml, or .yml")
-    try:
-        if file_path.endswith('.graphml'):
-            nx.write_graphml(logistics_graph, file_path)
-        else:
-            data = nx.node_link_data(logistics_graph)
-            with open(file_path, 'w') as f:
-                if file_path.endswith(('.yaml', '.yml')):
-                    yaml.dump(data, f, sort_keys=False, Dumper=yaml.SafeDumper)
-                else:
-                    json.dump(data, f)
-        print(f"Logistics graph saved successfully to {file_path}")
-    except Exception as e:
-        raise IOError(f"An error occurred while saving the graph: {e}")
-
-
-def plot_simplified_location_graph(logistics_graph, figsize=(10, 8), node_size=800, arrowsize=20, font_size=12):
-    """
-    Plots a simplified logistics location graph, showing only connections between locations.
-
-    Assumes node names are strings of the form "Location-Event Type-Day-Event Time".
-
-    Parameters
-    ----------
-    logistics_graph : networkx.Graph or DiGraph
-        The time-expanded logistics graph with nodes named as 'Location-EventType-Day-Time'.
-    figsize : tuple, optional
-        Size of the matplotlib figure.
-    node_size : int, optional
-        Size of the nodes in the plot.
-    arrowsize : int, optional
-        Size of the arrows in the plot.
-    font_size : int, optional
-        Font size for node labels.
-    """
-    # Extract unique locations from nodes
-    locations = set()
-    for node in logistics_graph.nodes:
-        loc = node.split('-')[0]
-        locations.add(loc)
-    locations = sorted(locations)
-
-    # Build a location-level graph (aggregate edges between locations)
-    location_graph = nx.DiGraph()
-    location_graph.add_nodes_from(locations)
-
-    for u, v in logistics_graph.edges:
-        loc_u = u.split('-')[0]
-        loc_v = v.split('-')[0]
-        if loc_u != loc_v:
-            location_graph.add_edge(loc_u, loc_v)
-
-    plt.figure(figsize=figsize)
-    pos = nx.spring_layout(location_graph, seed=42)
-    nx.draw(location_graph, pos, with_labels=True, node_size=node_size, node_color='skyblue',
-            arrowsize=arrowsize, font_size=font_size)
-    plt.title("Simplified Logistics Location Graph")
-    plt.show()
-
-
 def shortest_time_to_next_blood_matching(
     logistics_graph: nx.DiGraph,
     source_location: str,
@@ -550,122 +389,6 @@ def all_shortest_times_to_next_blood_matching(
                     results[src_day].loc[src_loc, dst_loc] = np.nan
 
     return results
-
-
-def save_shortest_times_to_file(
-    shortest_times: dict[str, pd.DataFrame],
-    output_file: str,
-):
-    """
-    Save the shortest times DataFrames to file in either: Excel, TSV, or HDF5 format.
-    
-    Parameters
-    ----------
-    shortest_times : dict[str, pd.DataFrame]
-        Dictionary mapping day names to DataFrames (source x destination) of travel times in days.
-    output_file : str
-        Path to the output file.
-    """
-    if output_file.endswith('.xlsx'):
-        with pd.ExcelWriter(output_file) as writer:
-            for day, df in shortest_times.items():
-                df.to_excel(writer, sheet_name=day, index=True)
-    elif output_file.endswith('.tsv'):
-        for day, df in shortest_times.items():
-            df.to_csv(f"{output_file}_{day}.tsv", sep='\t', index=True)
-    elif output_file.endswith('.h5') or output_file.endswith('.hdf5'):
-        with pd.HDFStore(output_file) as store:
-            for day, df in shortest_times.items():
-                store.put(day, df, format='table', data_columns=True)
-    else:
-        raise ValueError("Unsupported file format. Use .xlsx, .tsv, or .h5/.hdf5.")
-
-
-def load_shortest_times_from_file(
-    input_file: str,
-    days_to_load: list[str|int] = None,) -> dict[str, pd.DataFrame]:
-    """
-    Load the shortest times DataFrames from file in either: Excel, TSV, or HDF5 format.
-    
-    Parameters
-    ----------
-    input_file : str
-        Path to the input file.
-    days_to_load : list[str|int], optional
-        List of days to load from the file. If None, all days are loaded. Expected to be in the format of day names or indices.
-    Returns
-    -------
-    dict[str, pd.DataFrame]
-        Dictionary mapping day names to DataFrames (source x destination) of travel times in days.
-    """
-    if not os.path.exists(input_file):
-        raise FileNotFoundError(f"The file {input_file} does not exist.")
-    
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-    if input_file.endswith('.xlsx'):
-        df_dict = pd.read_excel(input_file, sheet_name=None)
-        if days_to_load is None:
-            return df_dict
-        else:
-            # Convert day names to string format if they are integers
-            days_to_load = [days[day] if isinstance(day, int) else day for day in days_to_load]
-            # Filter the dictionary to only include requested days
-            return {day: df_dict[day] for day in days_to_load if day in df_dict}
-    elif input_file.endswith('.tsv'):
-        if days_to_load is None:
-            return {f"Day_{i}": pd.read_csv(f"{input_file}_Day_{i}.tsv", sep='\t', index_col=0) for i in range(7)}
-        else:
-            # Convert day names to string format if they are integers
-            days_to_load = [days[day] if isinstance(day, int) else day for day in days_to_load]
-            return {day: pd.read_csv(f"{input_file}_{day}.tsv", sep='\t', index_col=0) for day in days_to_load}
-    elif input_file.endswith('.h5') or input_file.endswith('.hdf5'):
-        with pd.HDFStore(input_file) as store:
-            if days_to_load is None:
-                return {key: store[key] for key in store.keys()}
-            else:
-                # Convert day names to string format if they are integers
-                days_to_load = [days[day] if isinstance(day, int) else day for day in days_to_load]
-                return {day: store[day] for day in days_to_load if day in store.keys()}
-    else:
-        raise ValueError("Unsupported file format. Use .xlsx, .tsv, or .h5/.hdf5.")  
-
-
-def plot_blood_flows(df, custom_title="Average Weekly Flow"):
-    # Approximate coordinates from your image
-    pos = {
-        'Newcastle': (5, 10), 'Lancaster': (3, 8), 'Manchester': (4, 7), 
-        'Liverpool': (3, 7), 'Barnsley': (5, 7.2), 'Birmingham': (4.5, 5),
-        'Filton': (3.5, 3), 'Oxford': (5, 3.5), 'Southampton': (5, 2),
-        'Plymouth': (1, 1), 'Cambridge': (7, 4.5), 'Colindale': (6.5, 3.5),
-        'Tooting': (6.8, 3), 'Basildon': (7.5, 3.5)
-    }
-    
-    # Aggregate time-expanded nodes into pure Location -> Location flows
-    geo_df = df.groupby(['Origin', 'Destination'])['Mean_Weekly_Units'].sum().reset_index()
-    
-    G = nx.DiGraph()
-    for _, row in geo_df.iterrows():
-        G.add_edge(row['Origin'], row['Destination'], weight=row['Mean_Weekly_Units'])
-
-    plt.figure(figsize=(12, 9))
-    
-    # Draw nodes and labels
-    nx.draw_networkx_nodes(G, pos, node_size=500, node_color='darkred', alpha=0.8)
-    nx.draw_networkx_labels(G, pos, font_size=9, font_weight='bold')
-
-    # Draw edges with varying thickness
-    weights = [G[u][v]['weight'] for u, v in G.edges()]
-    max_weight = max(weights) if weights else 1
-    # Scale: busiest route is 10px thick
-    widths = [(w / max_weight) * 10 for w in weights]
-    
-    nx.draw_networkx_edges(G, pos, width=widths, edge_color='black', 
-                           alpha=0.5, arrowsize=20, connectionstyle="arc3,rad=0.1")
-    
-    plt.title(custom_title)
-    plt.axis('off')
-    plt.show()
 
 
 def analyze_scenario_statistics(
@@ -1000,3 +723,70 @@ def plot_scenario_comparison(
     
     plt.show()
     return max_diff # Return it so you can use it for the next plot
+
+
+def custom_representer():
+
+    class PandasSafeDumper(yaml.SafeDumper):
+        pass
+
+    def represent_numpy_int(dumper, data):
+        return dumper.represent_int(int(data))
+    
+    def represent_numpy_float(dumper, data):
+        return dumper.represent_float(float(data))
+
+    def represent_numpy_array(dumper, data):
+        return dumper.represent_list(data.tolist())
+    
+    def represent_pandas_timestamp(dumper, data):
+        # Converts pd.Timestamp to native Python datetime (natively supported in YAML)
+        return dumper.represent_datetime(data.to_pydatetime())
+    
+    def represent_pandas_timedelta(dumper, data):
+        return dumper.represent_str(str(data))
+
+    def represent_datetime_time(dumper, data):
+        # Serializes datetime.time objects as strings in "HH:MM:SS" format
+        return dumper.represent_str(data.isoformat())
+
+    PandasSafeDumper.add_multi_representer(np.integer, represent_numpy_int)
+    PandasSafeDumper.add_multi_representer(np.floating, represent_numpy_float)
+    PandasSafeDumper.add_representer(np.ndarray, represent_numpy_array)
+    PandasSafeDumper.add_representer(pd.Timestamp, represent_pandas_timestamp)
+    PandasSafeDumper.add_representer(pd.Timedelta, represent_pandas_timedelta)
+    PandasSafeDumper.add_representer(time, represent_datetime_time)
+
+    return PandasSafeDumper
+
+
+def save_graph_to_yaml(logistics_graph: nx.DiGraph, file_path: str):
+    """
+    Save the logistics graph to a YAML file.
+
+    :param logistics_graph: The time-expanded logistics graph to be saved.
+    :param file_path: The path to the output YAML file.
+    """
+    if not file_path.endswith('.yaml') and not file_path.endswith('.yml'):
+        file_path += '.yml'  # Default to .yml if not specified
+    
+    with open(file_path, 'w') as f:
+        data = nx.node_link_data(logistics_graph)
+        yaml.dump(data, f, sort_keys=False, Dumper=custom_representer())
+
+
+def load_graph_from_yaml(file_path: str) -> nx.DiGraph:
+    """
+    Load a logistics graph from a YAML file.
+
+    :param file_path: The path to the input YAML file.
+    :return: The loaded time-expanded logistics graph.
+    """
+    with open(file_path, 'r') as f:
+        data = yaml.safe_load(f)
+    graph = nx.node_link_graph(data)
+
+    for _, attrs in graph.nodes(data=True):
+        if isinstance(attrs.get('Event Time'), str):
+            attrs['Event Time'] = time.fromisoformat(attrs['Event Time'])
+    return graph
