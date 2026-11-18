@@ -48,7 +48,8 @@ class SimulationManager:
                 _seed = _seed + 17
             self.seeds.append(_seed)
             rng = np.random.default_rng(_seed)
-            rngs = {k: np.random.default_rng(_seed) for k in ['supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
+            rngs = {k: np.random.default_rng(_seed) for k in [
+                'supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
             if self.locations is not None:
                 ingredients = [self.demand(), self.supply(), self.matching(), self.inventory(),
                                self.locations(rngs, None),]
@@ -74,7 +75,8 @@ class SimulationManager:
                 _seed = _seed + 17
             self.seeds.append(_seed)
             rng = np.random.default_rng(_seed)
-            rngs = {k: np.random.default_rng(_seed) for k in ['supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
+            rngs = {k: np.random.default_rng(_seed) for k in [
+                'supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
             if self.locations is not None:
                 ingredients = [self.demand(), self.supply(), self.matching(), self.inventory(),
                                self.locations(rngs, None),]
@@ -105,7 +107,8 @@ class SimulationManager:
 
     def _pre_compute(self, i, seed):
         rng = np.random.default_rng(seed)
-        rngs = {k: np.random.default_rng(seed) for k in ['supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
+        rngs = {k: np.random.default_rng(seed) for k in [
+            'supply', 'demand', 'manufacturing', 'manufacturing_routing',]}
         if self.locations is not None:
             ingredients = [self.demand(), self.supply(), self.matching(), self.inventory(),
                            self.locations(rngs, None),]
@@ -282,7 +285,8 @@ class Simulation:
         self.computation_time = 0
         self.rebalance_stock = rebalance_stock
         self.rebalance_stock_days = rebalance_stock_days if rebalance_stock_days is not None else [6,]
-        self.rebalance_lead_time = rebalance_lead_time  # Days to allow for rebalanced stock to arrive
+        # Days to allow for rebalanced stock to arrive
+        self.rebalance_lead_time = rebalance_lead_time
         self.daily_steady_state_xA = []
         self.i = i
 
@@ -300,14 +304,16 @@ class Simulation:
                     self.matching.get_location_id_mappings(self.locations)
                     self.matching.get_transport_details(self.locations)
                 donated_units = self.supply.supply(rng=self.rngs.get('supply', self.rng))
-                self.locations.send_on_pathway(donated_units, self.inventory, rng=self.rngs.get('manufacturing_routing', self.rng))
+                self.locations.send_on_pathway(donated_units, self.inventory, rng=self.rngs.get(
+                    'manufacturing_routing', self.rng))
                 routed_available_units = self.locations.receive_from_pathway()
                 self.inventory.add_to_store(routed_available_units)
                 self.inventory.measure_stock(locations=self.locations)
                 if not start_demand:
                     start_demand = len(self.inventory.store) >=  self.inventory.inventory_size * 0.95
 
-                new_requests, abs_mask = self.demand.demand(rng=self.rngs.get('demand', self.rng), skip_demand=not start_demand)
+                new_requests, abs_mask = self.demand.demand(
+                    rng=self.rngs.get('demand', self.rng), skip_demand=not start_demand)
                 self.matching.receive_new_requests(new_requests, abs_mask)
                 self.matching.get_inventory(self.inventory)
                 forecasts = self.get_n_days_forecast(skip=not start_demand)
@@ -452,12 +458,14 @@ class Simulation:
             routed_available_units = self.locations.receive_from_pathway()
             units.append(routed_available_units)
             if not start_demand:
-                self.inventory.add_to_store(routed_available_units)  # Only add to inventory before demand starts so that it does not get too large
+                # Only add to inventory before demand starts so that it does not get too large
+                self.inventory.add_to_store(routed_available_units)
                 start_demand = len(self.inventory.store) >= self.inventory.inventory_size * 0.95
             new_requests, abs_mask = self.demand.demand(rng=self.rngs.get('demand', self.rng), skip_demand=not start_demand)
             requests.append(new_requests)
             requests_Abs.append(abs_mask)
-            donations.append(donated_units[:, [0, 3]])  # ID and location ID of original donation point only
+            # ID and location ID of original donation point only
+            donations.append(donated_units[:, [0, 3]])
             strides.append((len(routed_available_units), len(new_requests)))
         self.precomputed_vars = {'start_inventory': self.inventory.store[:0], 'units': np.vstack(units),
                                  'requests': np.vstack(requests), 'requests_Abs': np.vstack(requests_Abs),
