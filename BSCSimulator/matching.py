@@ -175,9 +175,6 @@ class MatchingArea:
         default_substitution_penalty = self.mismatching_parameters.get('substitution_penalty')
         default_mismatch_mask = self.mismatching_parameters.get('mismatch_mask')
         default_subst_mask = self.mismatching_parameters.get('substitution_mask')
-        # self._immuno_risk_norm = 0
-        # self._mismatch_risk_norm = 0
-        # Unpack group-specific parameters
         for pat_grp in self.patient_groups.keys():
             params = {pat_grp: {'immuno_risk': self.mismatching_parameters.get(f'{pat_grp}_mismatch_immune_risk', default_mismatch_immune_risk)[self.antigens.antigen_index].to_numpy().flatten(),
                                 'mismatch_risk': self.mismatching_parameters.get(f'{pat_grp}_mismatch_expert_risk', default_mismatch_expert_risk)[self.antigens.antigen_index].to_numpy().flatten(),
@@ -187,8 +184,6 @@ class MatchingArea:
                             }
             }
             self.group_specific_risks.update(params)
-            # self._immuno_risk_norm = max(self._immuno_risk_norm, params[pat_grp]['immuno_risk'].sum())
-            # self._mismatch_risk_norm = max(self._mismatch_risk_norm, params[pat_grp]['mismatch_risk'].sum())
 
     def get_transport_details(self, locations: Locations):
         self._transportation_costs = locations.courier_costs
@@ -229,8 +224,6 @@ class MatchingArea:
         :param tuple requests: First element is a 2D numpy array of requests,
         second element is the 2-D numpy array for the alloantibody mask.
         """
-        # self.forecast_units = units.copy()
-        # TODO: This needs to be handled in a better way
         padding_shape_u = (units.shape[0], 1)
         padding_u = np.zeros(padding_shape_u, dtype=int)
         self.forecast_units = np.hstack((units, padding_u))
@@ -249,7 +242,6 @@ class MatchingArea:
         second element is the 2-D numpy array for the alloantibody mask,
         third element is a list of 1-D numpy arrays for the source location IDs.
         """
-        # TODO: This needs to be handled in a better way
         padding_shape = (orders[0].shape[0], 1)
         padding = np.zeros(padding_shape, dtype=int)
         self.rebalance_orders = np.hstack((orders[0], padding))
@@ -269,13 +261,17 @@ class MatchingArea:
         new_location_demand_ids = np.empty(0, dtype=np.int64)
         transit_times = np.empty(0, dtype=np.int64)
         
-        units_ids = np.concatenate((units_ids, self._futures_matches[:, 1], self._rebalance_flows[:, 1]))
+        units_ids = np.concatenate((units_ids, self._futures_matches[:, 1],
+                                    self._rebalance_flows[:, 1]))
         new_location_ids = np.concatenate((new_location_ids,
                                            self._dem_to_sup_map[self._futures_matches[:, 6]],
                                            self._rebalance_flows[:, 6]))
-        request_due_dates = np.concatenate((request_due_dates, self._futures_matches[:, 9], self._rebalance_flows[:, 9]))
-        patient_groups = np.concatenate((patient_groups, self._futures_matches[:, 5], self._rebalance_flows[:, 5]))
-        transit_times = np.concatenate((transit_times, self._futures_matches[:, 10], self._rebalance_flows[:, 10]))
+        request_due_dates = np.concatenate((request_due_dates, self._futures_matches[:, 9],
+                                            self._rebalance_flows[:, 9]))
+        patient_groups = np.concatenate((patient_groups, self._futures_matches[:, 5],
+                                         self._rebalance_flows[:, 5]))
+        transit_times = np.concatenate((transit_times, self._futures_matches[:, 10],
+                                        self._rebalance_flows[:, 10]))
         new_location_demand_ids = self._id_to_sink_map[new_location_ids]
         return units_ids, new_location_ids, request_due_dates, patient_groups, new_location_demand_ids, transit_times
 
@@ -292,7 +288,6 @@ class MatchingArea:
     def default_matching(self):
         raise NotImplementedError('Default matching algorithm is not implemented.')
 
-    # @jit(nopython=False)
     def transport_matching(self, shelf_life=35, max_young_blood=14, solver=None):
         matches = []
         if self.pending_requests.size == 0:
@@ -344,7 +339,6 @@ class MatchingArea:
 
         # Calculate components of cost function
         intermediate_calcs = IntermediateMetrics()
-        ###### ADDING PATIENT ######
         # Create boolean masks for each patient group to enable group-specific processing
         patient_groups = self.patient_groups
         patient_group_masks = {}
@@ -364,7 +358,6 @@ class MatchingArea:
 
         ##### PENALTY CALCULATION SETUP ############
         w = self.transport_matching_weights
-
         # Initialize penalty matrices for extended matching rules
         imm = np.zeros((num_reqs, num_units))  # immune mistmatch penalties
         subst = np.zeros((num_reqs, num_units))  # substitution penalties
@@ -379,7 +372,7 @@ class MatchingArea:
             subst_immuno_risk = group_risks.get('subst_immuno_risk',)
             group_mismatch_mask = group_risks.get('mismatch_mask',)
             subst_pen_mask = group_risks.get('subst_mask',)
-            # Choose expert or immuno risk
+            # Choose expert or immunogenicity risk
             risk = mismatch_risk if self._use_expert_risk else immuno_risk
             # Calculate penalties using mismatching function
             group_imm = mismatching(units_phen[:, group_mismatch_mask],  # Unit antigens
@@ -407,17 +400,21 @@ class MatchingArea:
         else:
             units_abod_ints = units[:, 1] >> self.antigens.vector_length - 3
             reqs_abod_ints = reqs[:, 1] >> self.antigens.vector_length - 3
-            usab_diff = major_antigen_substitution(units_abod_ints, reqs_abod_ints, self.anticipation,
-                                                    self.population_abd_usabilities)
+            usab_diff = major_antigen_substitution(units_abod_ints, reqs_abod_ints,
+                                                   self.anticipation,
+                                                   self.population_abd_usabilities)
         fifo = fifo_discount(shelf_life + units[:, 2] - self.current_date, shelf_life,
                              reqs[:, 3] - self.current_date,
                              young_blood_patients * self.yb_constraint)
         if w[4] == 0 or self.yb_constraint is not True:
             old_blood = np.zeros((1, 1))
         else:
-            old_blood = young_blood_penalty(self.current_date - units[:, 2], max_young_blood,
-                                            reqs[:, 3] - self.current_date, young_blood_patients)
-        antigen_compatibility = not_compatible(reqs_abo_abs, units[:, 1][None, :], self.antigens.mask)
+            old_blood = young_blood_penalty(self.current_date - units[:, 2],
+                                            max_young_blood, reqs[:, 3] - self.current_date,
+                                            young_blood_patients)
+        antigen_compatibility = not_compatible(reqs_abo_abs,
+                                               units[:, 1][None, :],
+                                               self.antigens.mask)
         abod_incompat_indices = antigen_compatibility > 0
         incompat_indices = usab_diff < 0
         usab_diff[incompat_indices] = 0
@@ -425,22 +422,27 @@ class MatchingArea:
         abod_incompat[abod_incompat_indices] = 1e16
         unit_available_dates = np.maximum(units[:, 2], self.current_date) + units[:, 5]
         location_transit_compatibility = transit_constraint(self._transit_time_data,
-                                                            units[:, 3], reqs[:, 6],  # Using sink IDs here, should I be using primary supply IDs or even primary supply sink IDs? ¯\_(ツ)_/¯
-                                                            unit_available_dates, reqs[:, 3], stepwise_results=intermediate_calcs,)
+                                                            units[:, 3],
+                                                            # Using sink IDs here, should I be using primary supply IDs or even primary supply sink IDs? ¯\_(ツ)_/¯
+                                                            reqs[:, 6],
+                                                            unit_available_dates,
+                                                            reqs[:, 3],
+                                                            stepwise_results=intermediate_calcs,)
         transport_cost = np.zeros(antigen_compatibility.shape)
         if w[5] != 0:
             transport_cost[num_t_reqs:, :] = transportation_cost(units[:, 3], reqs[num_t_reqs:, 6],
                                                                 self._transportation_costs,)
-        if self.siloed_future_requests:  # So that future requests cannot be met with units from another SHU. No moving of units to meet future demand
-            siloed_shus_constraint = siloed_future_demand_supply_constraint(num_t_reqs, num_f_reqs, stepwise_results=intermediate_calcs,)
+        if self.siloed_future_requests:
+            # So that future requests cannot be met with units from another SHU. No moving of units to meet future demand
+            siloed_shus_constraint = siloed_future_demand_supply_constraint(num_t_reqs, num_f_reqs,
+                                                                            stepwise_results=intermediate_calcs,)
         else:
             siloed_shus_constraint = 0
         rebalance_compatibility = np.zeros(abod_incompat.shape)
         rebalance_compatibility[(num_t_reqs + num_f_reqs):, :] = can_unit_be_used_to_rebalance(units[:, 3], self.rebalance_orders_sources)
-        rebalance_compatibility[(num_t_reqs + num_f_reqs):] += restrict_r0_units_from_rebalancing(units[:, 1], )  # R0 units cannot be used for rebalancing
-        
-        # TODO: Separate FIFO penalty from FIFO constraint
-        # TODO: Separate Young blood penalty from Young blood constraint
+        # R0 units cannot be used for rebalancing
+        rebalance_compatibility[(num_t_reqs + num_f_reqs):] += restrict_r0_units_from_rebalancing(units[:, 1], )
+
         core_fifo = np.abs(fifo) <= 1
         w_3_fifo = fifo * 1
         w_3_fifo[core_fifo] *= w[3]
@@ -457,11 +459,13 @@ class MatchingArea:
         else:
             stage_one = np.zeros((1, 1), dtype=bool)
         if staging_policy[1]:
-            stage_two = not_exact_match_abo(reqs_abod_ints, units_abod_ints, remove_rhd=True)
+            stage_two = not_exact_match_abo(reqs_abod_ints, units_abod_ints,
+                                            remove_rhd=True)
         else:
             stage_two = np.zeros((1, 1), dtype=bool)
         if staging_policy[2]:
-            stage_three = not_exact_match_rhd(reqs_abod_ints, units_abod_ints, remove_abo=True)
+            stage_three = not_exact_match_rhd(reqs_abod_ints, units_abod_ints,
+                                              remove_abo=True)
         else:
             stage_three = np.zeros((1, 1), dtype=bool)
         staging_constraints = [stage_one, stage_two, stage_three]
@@ -490,7 +494,8 @@ class MatchingArea:
         composite_staged_plan = np.zeros(cost_matrix.T.shape, dtype=int)
         all_reqs_enumerated = np.arange(num_reqs)
         staged_todays_reqs_indices = all_reqs_enumerated < num_t_reqs
-        staged_todays_or_and_future_reqs_indices = staged_todays_reqs_indices  # If not constraining future requests, then this is just today's requests ELSE it is today's + future requests
+        # If not constraining future requests, then this is just today's requests ELSE it is today's + future requests
+        staged_todays_or_and_future_reqs_indices = staged_todays_reqs_indices
         staged_todays_and_future_reqs_indices = (all_reqs_enumerated < (num_t_reqs + num_f_reqs)) | staged_todays_reqs_indices
         has_all_demand_been_met = False
         num_compatible_units = np.sum((abod_incompat + location_transit_compatibility + siloed_shus_constraint) == 0, axis=1)
@@ -517,7 +522,8 @@ class MatchingArea:
             staged_bindex_b = bindex_b | (part_relaxed_constraint & staged_exact_patients[:, None] & staged_todays_or_and_future_reqs_indices[:, None])
             staged_cost_matrix[staged_bindex_b] = 1e8
 
-            staged_plan: np.ndarray = maxflow_mincost(staged_units_hist, staged_reqs_hist, ~staged_bindex_b.T, staged_cost_matrix.T)
+            staged_plan: np.ndarray = maxflow_mincost(
+                staged_units_hist, staged_reqs_hist, ~staged_bindex_b.T, staged_cost_matrix.T)
             staged_requests_allocations = staged_plan.sum(axis=0)
             staged_fully_met_requests = staged_requests_allocations == staged_reqs_hist
             staged_allocations = (staged_plan > 0) & staged_fully_met_requests & staged_todays_reqs_indices & staged_exact_patients & (staged_reqs_hist > 0)
@@ -534,7 +540,8 @@ class MatchingArea:
             if have_exact_patients_been_met:
                 break
         if not has_all_demand_been_met:
-            plan = maxflow_mincost(staged_units_hist, staged_reqs_hist, ~bindex_b.T, cost_matrix.T)
+            plan = maxflow_mincost(staged_units_hist, staged_reqs_hist,
+                                   ~bindex_b.T, cost_matrix.T)
             composite_staged_plan += plan
 
         todays_plan = composite_staged_plan[:num_t_units, :num_t_reqs].T
@@ -562,10 +569,10 @@ class MatchingArea:
                               f_reqs[pjj2, 5:6], f_reqs[pjj2, 6:7], units[dii2, 3:4],
                               f_reqs[pjj2, 3:4], f_transit_times[pjj2, dii2][:, None]))
         units_arriving_exactly_on_time_future = intermediate_calcs.units_arriving_exactly_on_time[num_t_reqs:num_t_reqs+num_f_reqs, :]
-        to_move_now = units_arriving_exactly_on_time_future[pjj2, dii2]  # TODO: Incorporate a moving time buffer potentially. So, if unit arrives X days before, it can be moved now.
+        to_move_now = units_arriving_exactly_on_time_future[pjj2, dii2]
         from_different_location = fmatches[:, 7] % fmatches[:, 8] != 0
         not_already_in_transit = units[dii2, 5] == 0
-        not_future_units = units[dii2, 2] <= self.current_date  # TODO: This is not sufficient anymore because future units could be units in manufacturing that are not yet in inventory but obviously have a bled date in the past. Need a more robust way to identify future units that are not yet in inventory.
+        not_future_units = units[dii2, 2] <= self.current_date
         self._futures_matches = np.vstack((self._futures_matches,
                                            fmatches[to_move_now & from_different_location & not_already_in_transit & not_future_units, :]))
 
@@ -578,10 +585,10 @@ class MatchingArea:
                               r_reqs[pj3, 5:6], r_reqs[pj3, 6:7], units[di3, 3:4],
                               r_reqs[pj3, 3:4], r_transit_times[pj3, di3][:, None]))
         # Hard constraint to ensure future units cannot be used for rebalancing
-        not_future_units = units[di3, 2] <= self.current_date  # TODO: This is not sufficient anymore because future units could be units in manufacturing that are not yet in inventory but obviously have a bled date in the past. Need a more robust way to identify future units that are not yet in inventory.
+        not_future_units = units[di3, 2] <= self.current_date
         self._rebalance_flows = np.vstack((self._rebalance_flows, rmatches[not_future_units, :]))
 
-       # Measurements:
+        # Measurements:
         self._measure_abod_crossmatch(di, pj, units_phen, reqs_phen)
         self._measure_abod_mixed_match_subsititutions(di, pj, units_phen, reqs_phen)
         # Measure the age distribution of the units given to SCD patients
@@ -589,7 +596,6 @@ class MatchingArea:
 
         return matches
 
-# TODO: Needs to be updated to deal with patient groups (ids)
     def update_matches(self) -> np.ndarray:
         """Update the matches with the matches from the current day.
         
@@ -615,7 +621,6 @@ class MatchingArea:
         self.matches = np.empty((0, MATCHES_COLUMNS), dtype=int)
         self.pending_requests = np.empty(shape=(0, DEMAND_COLUMNS + 1), dtype=int)  # last column = matched or not
         self.pr_allo_abs = np.empty(shape=(0, len(self.antigens.alloantibody_freqs)), dtype=bool)
-        # self.immediately_unmet_requests = np.empty(shape=(0, DEMAND_COLUMNS + 2), dtype=int)
         self.num_matches = 0
         self.scd_shortages = 0
         self.all_shortages = 0
@@ -648,7 +653,8 @@ class MatchingArea:
 
     def measure_mismatches(self, demand_phens, supply_phens, patient_groups,):
         mismatched = supply_phens > demand_phens
-        results = {group_name: mismatched[patient_groups == id] for group_name, id in self.patient_groups.items()}
+        results = {group_name: mismatched[patient_groups == id]
+                   for group_name, id in self.patient_groups.items()}
         results.update({'total': mismatched})
         return results
 
@@ -662,7 +668,8 @@ class MatchingArea:
 
     def measure_substitutions(self, demand_phens, supply_phens, patient_groups=None):
         subs = supply_phens < demand_phens
-        results = {group: subs[patient_groups == id] for group, id in self.patient_groups.items()}
+        results = {group: subs[patient_groups == id]
+                   for group, id in self.patient_groups.items()}
         # overall substitutions (total across all patients)
         results.update({'total': subs})
         return results
@@ -686,8 +693,8 @@ class MatchingArea:
             cm_count[(combs == u).all(axis=1)] += counts[i]
         self.abo_cm_counts += cm_count
 
-    def _measure_abod_mixed_match_subsititutions(
-            self, i: np.ndarray, j: np.ndarray, units_phen: np.ndarray, reqs_phen: np.ndarray):
+    def _measure_abod_mixed_match_subsititutions(self, i: np.ndarray, j: np.ndarray,
+                                                 units_phen: np.ndarray, reqs_phen: np.ndarray):
         # Remove non-SCD patients
         i = i[self._todays_matches[:, 5] == self.patient_groups['SCD']]
         j = j[self._todays_matches[:, 5] == self.patient_groups['SCD']]
